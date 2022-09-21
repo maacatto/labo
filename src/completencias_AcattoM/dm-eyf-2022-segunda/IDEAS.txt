@@ -1,0 +1,18 @@
+- rankeo
+- Percentiles 
+	(file:///G:/My%20Drive/Facultad/Maestria%20DM/Expecializacion/Enfoque%20Estadistico%20del%20aprendizaje/Practica/EEA-2022/clase%206/Preprocesamiento%20Dataset%20Properati.nb.html#Creaci%C3%B3n_de_nueva_variable_precio_en_miles_y_c%C3%A1lculo_de_estadisticas_descriptivas)
+	Ejemplo:# genero una nueva variable de precios en miles para reducir escala en el gráfico
+datos_limpios <- datos_limpios %>% 
+  mutate(precio_en_miles = round((price/1e3),0))
+# Calculo estadísticas descriptivas de la variable precio
+# mínimo, primer cuartil (Q1), mediana (o Q2), promedio, Q3 y máximo 
+estad.descrip.precios <- datos_limpios %>% 
+  summarise(Minimo = min(precio_en_miles), 
+            Q1 = quantile(precio_en_miles, probs = 0.25), 
+            Mediana = quantile(precio_en_miles, probs = 0.5), 
+            Promedio = round(mean(precio_en_miles),0), 
+            Q3 = quantile(precio_en_miles, probs = 0.75),  
+            Maximo = max(precio_en_miles), 
+            Desvio = round(sd(precio_en_miles),0))
+# tabla resultante
+estad.descrip.precios

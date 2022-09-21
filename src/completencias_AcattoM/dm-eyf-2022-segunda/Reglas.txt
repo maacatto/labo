@@ -1,0 +1,12 @@
+Reglas de la Segunda Competencia
+
+El modelo final tiene que ser un solo modelo de {Random Forest, XGBoost, LightGBM, CatBoost} entrenado sobre el dataset de 202103 al que se le hizo feature engineering ingenioso solo sobre ese mes, sin utilizar la historia.
+
+Se podrá y deberá utilizar optimización de hiperparámetros, en particular optimización bayesiana.
+
+Usted deberá correr su propia optimización bayesiana.
+Se podrá y deberá utilizar feature engineering, sobre los datos de un solo mes. basado en transformaciones simples.
+No se pueden crear variables históricas en el Feature Engineering
+Se podrán utilizar los meses 202101, 202102 para detectar problemas de Data Drifting y Concept Drifting y por ejemplo tomar decisiones de eliminar variables, o transformarlas de absolutas a relativas.
+No se podrán utilizar ensemble de modelos.
+La REPLICABILIDAD de todo su proceso es fundamental.
