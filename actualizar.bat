@@ -1,4 +1,7 @@
-git add .  
+@echo off
+
+git add .
+if %errorlevel% NEQ 0 (goto END)  
 rem Agrego a staging todo lo que vengo trabajando y no subi a github aun. OJO, despues del add hay un espacio y un punto
 
 git commit -m "algun mensaje de lo que voy a subir"
@@ -16,5 +19,7 @@ rem Sube cambios propios con los nuevos del otro repo
 
 git pull 
 rem traer el repositorio a la maquina
+
+:END
 
 pause
