@@ -333,65 +333,65 @@ OptBayesiana <- function(dataset,columnas, GLOBAL_iteracion, archivo_log, archiv
   #Visa_fultimo_cierre
 
   # corrijo manualmente el drifting de  Visa_fultimo_cierre
-  dataset_fe[foto_mes==202103 & Visa_fultimo_cierre== 1, Visa_fultimo_cierre :=  4 ]
-  dataset_fe[foto_mes==202103 & Visa_fultimo_cierre== 7, Visa_fultimo_cierre := 11 ]
-  dataset_fe[foto_mes==202103 & Visa_fultimo_cierre==21, Visa_fultimo_cierre := 25 ]
-  dataset_fe[foto_mes==202103 & Visa_fultimo_cierre==14, Visa_fultimo_cierre := 18 ]
-  dataset_fe[foto_mes==202103 & Visa_fultimo_cierre==28, Visa_fultimo_cierre := 32 ]
-  dataset_fe[foto_mes==202103 & Visa_fultimo_cierre==35, Visa_fultimo_cierre := 39 ]
-  dataset_fe[foto_mes==202103 & Visa_fultimo_cierre> 39, Visa_fultimo_cierre := Visa_fultimo_cierre + 4 ]
+  dataset_fe[foto_mes==202105 & Visa_fultimo_cierre== 1, Visa_fultimo_cierre :=  4 ]
+  dataset_fe[foto_mes==202105 & Visa_fultimo_cierre== 7, Visa_fultimo_cierre := 11 ]
+  dataset_fe[foto_mes==202105 & Visa_fultimo_cierre==21, Visa_fultimo_cierre := 25 ]
+  dataset_fe[foto_mes==202105 & Visa_fultimo_cierre==14, Visa_fultimo_cierre := 18 ]
+  dataset_fe[foto_mes==202105 & Visa_fultimo_cierre==28, Visa_fultimo_cierre := 32 ]
+  dataset_fe[foto_mes==202105 & Visa_fultimo_cierre==35, Visa_fultimo_cierre := 39 ]
+  dataset_fe[foto_mes==202105 & Visa_fultimo_cierre> 39, Visa_fultimo_cierre := Visa_fultimo_cierre + 4 ]
   
   # corrijo manualmente el drifting de  Visa_fultimo_cierre
-  dataset_fe[foto_mes==202103 & Master_fultimo_cierre== 1, Master_fultimo_cierre :=  4 ]
-  dataset_fe[foto_mes==202103 & Master_fultimo_cierre== 7, Master_fultimo_cierre := 11 ]
-  dataset_fe[foto_mes==202103 & Master_fultimo_cierre==21, Master_fultimo_cierre := 25 ]
-  dataset_fe[foto_mes==202103 & Master_fultimo_cierre==14, Master_fultimo_cierre := 18 ]
-  dataset_fe[foto_mes==202103 & Master_fultimo_cierre==28, Master_fultimo_cierre := 32 ]
-  dataset_fe[foto_mes==202103 & Master_fultimo_cierre==35, Master_fultimo_cierre := 39 ]
-  dataset_fe[foto_mes==202103 & Master_fultimo_cierre> 39, Master_fultimo_cierre := Master_fultimo_cierre + 4 ]
+  dataset_fe[foto_mes==202105 & Master_fultimo_cierre== 1, Master_fultimo_cierre :=  4 ]
+  dataset_fe[foto_mes==202105 & Master_fultimo_cierre== 7, Master_fultimo_cierre := 11 ]
+  dataset_fe[foto_mes==202105 & Master_fultimo_cierre==21, Master_fultimo_cierre := 25 ]
+  dataset_fe[foto_mes==202105 & Master_fultimo_cierre==14, Master_fultimo_cierre := 18 ]
+  dataset_fe[foto_mes==202105 & Master_fultimo_cierre==28, Master_fultimo_cierre := 32 ]
+  dataset_fe[foto_mes==202105 & Master_fultimo_cierre==35, Master_fultimo_cierre := 39 ]
+  dataset_fe[foto_mes==202105 & Master_fultimo_cierre> 39, Master_fultimo_cierre := Master_fultimo_cierre + 4 ]
 
   #Corregir saldos por inflación
-  dataset_fe[foto_mes==202103, mcuentas_saldo := mcuentas_saldo / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mcuenta_corriente := mcuenta_corriente / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mprestamos_personales := mprestamos_personales / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mcaja_ahorro := mcaja_ahorro / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mactivos_margen := mactivos_margen / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mpasivos_margen := mpasivos_margen / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mtarjeta_visa_consumo := mtarjeta_visa_consumo / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mcomisiones := mcomisiones / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mcomisiones_otras := mcomisiones_otras / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_msaldototal := Visa_msaldototal / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_msaldopesos := Visa_msaldopesos / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mrentabilidad_annual := mrentabilidad_annual / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_mpagominimo := Visa_mpagominimo / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mrentabilidad := mrentabilidad / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mpayroll := mpayroll / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mtransferencias_recibidas := mtransferencias_recibidas / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_mpagospesos := Visa_mpagospesos / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_mconsumospesos := Visa_mconsumospesos / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_mconsumototal := Visa_mconsumototal / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mextraccion_autoservicio := mextraccion_autoservicio / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mautoservicio := mautoservicio / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mcaja_ahorro_dolares := mcaja_ahorro_dolares / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mplazo_fijo_dolares := mplazo_fijo_dolares / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mtransferencias_emitidas := mtransferencias_emitidas / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcuentas_saldo := mcuentas_saldo / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcuenta_corriente := mcuenta_corriente / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mprestamos_personales := mprestamos_personales / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcaja_ahorro := mcaja_ahorro / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mactivos_margen := mactivos_margen / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mpasivos_margen := mpasivos_margen / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mtarjeta_visa_consumo := mtarjeta_visa_consumo / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcomisiones := mcomisiones / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcomisiones_otras := mcomisiones_otras / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_msaldototal := Visa_msaldototal / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_msaldopesos := Visa_msaldopesos / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mrentabilidad_annual := mrentabilidad_annual / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_mpagominimo := Visa_mpagominimo / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mrentabilidad := mrentabilidad / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mpayroll := mpayroll / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mtransferencias_recibidas := mtransferencias_recibidas / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_mpagospesos := Visa_mpagospesos / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_mconsumospesos := Visa_mconsumospesos / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_mconsumototal := Visa_mconsumototal / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mextraccion_autoservicio := mextraccion_autoservicio / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mautoservicio := mautoservicio / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcaja_ahorro_dolares := mcaja_ahorro_dolares / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mplazo_fijo_dolares := mplazo_fijo_dolares / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mtransferencias_emitidas := mtransferencias_emitidas / 1.033 / 1.047 ]
   
-  dataset_fe[foto_mes==202103, matm := matm / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mcheques_emitidos := mcheques_emitidos / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, matm := matm / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcheques_emitidos := mcheques_emitidos / 1.033 / 1.047 ]
   
-  dataset_fe[foto_mes==202103, mcheques_depositados := mcheques_depositados / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, matm_other := matm_other / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mtarjeta_master_consumo := mtarjeta_master_consumo / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcheques_depositados := mcheques_depositados / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, matm_other := matm_other / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mtarjeta_master_consumo := mtarjeta_master_consumo / 1.033 / 1.047 ]
   
-  dataset_fe[foto_mes==202103, mpagomiscuentas := mpagomiscuentas / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_mlimitecompra := Visa_mlimitecompra / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, minversion1_dolares := minversion1_dolares / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mcheques_depositados_rechazados := mcheques_depositados_rechazados / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_mfinanciacion_limite := Visa_mfinanciacion_limite / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, mttarjeta_master_debitos_automaticos := mttarjeta_master_debitos_automaticos / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, minversion2 := minversion2 / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Visa_mpagominimo := Visa_mpagominimo / 1.033 / 1.047 ]
-  dataset_fe[foto_mes==202103, Master_mpagominimo := Master_mpagominimo / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mpagomiscuentas := mpagomiscuentas / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_mlimitecompra := Visa_mlimitecompra / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, minversion1_dolares := minversion1_dolares / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mcheques_depositados_rechazados := mcheques_depositados_rechazados / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_mfinanciacion_limite := Visa_mfinanciacion_limite / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, mttarjeta_master_debitos_automaticos := mttarjeta_master_debitos_automaticos / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, minversion2 := minversion2 / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Visa_mpagominimo := Visa_mpagominimo / 1.033 / 1.047 ]
+  dataset_fe[foto_mes==202105, Master_mpagominimo := Master_mpagominimo / 1.033 / 1.047 ]
   
 
   
@@ -474,7 +474,7 @@ OptBayesiana <- function(dataset,columnas, GLOBAL_iteracion, archivo_log, archiv
 
 ## * binarizar ---- 
   # #Hist
-  ggplot( dataset_fe[foto_mes==202101 & Visa_status>=6], aes(x=clase_ternaria)) + 
+  ggplot( dataset_fe[foto_mes==202103 & Visa_status>=6], aes(x=clase_ternaria)) + 
     geom_histogram(stat="count")
   
   dataset_fe[, n_visa_status_bin := ifelse(Visa_status>=6,2,1)]
@@ -486,7 +486,7 @@ OptBayesiana <- function(dataset,columnas, GLOBAL_iteracion, archivo_log, archiv
 
 ## Clase Binaria  ----
   #creo la clase_binaria SI={ BAJA+1, BAJA+2 }    NO={ CONTINUA }
-  dataset_fe[ foto_mes==202101, 
+  dataset_fe[ foto_mes==202103, 
            clase_binaria :=  ifelse( clase_ternaria=="CONTINUA", "NO", "SI" ) ]
 
 
@@ -505,8 +505,8 @@ OptBayesiana <- function(dataset,columnas, GLOBAL_iteracion, archivo_log, archiv
   #'------------------------------------------------------------------------------
   ## a  dTrain / dApply ----
   #'------------------------------------------------------------------------------
-  dtrain  <- dataset_fe[ foto_mes==202101 ]  #defino donde voy a entrenar
-  dapply  <- dataset_fe[ foto_mes==202103 ]  #defino donde voy a aplicar el modelo
+  dtrain  <- dataset_fe[ foto_mes==202103 ]  #defino donde voy a entrenar
+  dapply  <- dataset_fe[ foto_mes==202105 ]  #defino donde voy a aplicar el modelo
 
   ## b. Transformo en Ranking todas las variables definidas en pesos. ----
 
@@ -627,14 +627,14 @@ pdf(file = paste0(dir_salidas,"/",format(Sys.time(), "%Y%m%d_%H%M%S_"),".pdf"), 
 dev.off()
 
 #Boxplot
-ggplot(dataset_fe[mcuentas_saldo<100000 & foto_mes==202101 & Visa_status>2], aes(x = clase_ternaria, y = Visa_status)) + 
+ggplot(dataset_fe[mcuentas_saldo<100000 & foto_mes==202103 & Visa_status>2], aes(x = clase_ternaria, y = Visa_status)) + 
   geom_boxplot() + labs(y = "accuracy")+ labs(x = "")
 
-# ggplot(dataset_fe[ foto_mes==202101 & kmeans==2 ], aes(x =kmeans, y = mcuentas_saldo)) + 
+# ggplot(dataset_fe[ foto_mes==202103 & kmeans==2 ], aes(x =kmeans, y = mcuentas_saldo)) + 
 #   geom_boxplot() + labs(y = "accuracy")+ labs(x = "")
 # 
 # #Hist
-# ggplot( dataset_fe[foto_mes==202101 & Visa_status>=4], aes(x=clase_ternaria)) + 
+# ggplot( dataset_fe[foto_mes==202103 & Visa_status>=4], aes(x=clase_ternaria)) + 
 #   geom_histogram(stat="count")
 
 
