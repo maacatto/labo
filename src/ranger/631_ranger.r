@@ -33,10 +33,15 @@ dapply  <- dataset[ foto_mes == 202105 ]
 #                "min.node.size"=  1500,  #tamaño minimo de las hojas
 #                "max.depth"=        12   # 0 significa profundidad infinita
 #              )
-param  <- list( "num.trees"=       223,  #cantidad de arboles   OB:22,830,000
-                "mtry"=             8,  #cantidad de variables que evalua para hacer un split  sqrt(ncol(dtrain))
-                "min.node.size"=  195,  #tamaño minimo de las hojas
-                "max.depth"=        28   # 0 significa profundidad infinita
+#param  <- list( "num.trees"=       223,  #cantidad de arboles   OB:22,830,000
+#                "mtry"=             8,  #cantidad de variables que evalua para hacer un split  sqrt(ncol(dtrain))
+#                "min.node.size"=  195,  #tamaño minimo de las hojas
+#                "max.depth"=        28   # 0 significa profundidad infinita
+#)
+param  <- list( "num.trees"=       1237,  #cantidad de arboles   OB:22,830,000
+                "mtry"=            36,  #cantidad de variables que evalua para hacer un split  sqrt(ncol(dtrain))
+                "min.node.size"=  500,  #tamaño minimo de las hojas
+                "max.depth"=        20   # 0 significa profundidad infinita
 )
 
 set.seed(807299) #Establezco la semilla aleatoria
