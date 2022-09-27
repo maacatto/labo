@@ -33,7 +33,8 @@ require("readODS")
 seeds <- c( 807299, 962041, 705689, 909463, 637597 )
 
 #Aqui se debe poner la carpeta de la materia de SU computadora local
-setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
+#setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
+setwd("~/buckets/b1/")   #Establezco el Working Directory
 
 dir_salidas="./labo/src/rpart/TP/exp"
 dir.create( dir_salidas )
@@ -45,7 +46,10 @@ dir.create( dir_salidas )
 
 
 # cargo el dataset
-# dataset  <- fread("./datasets/competencia1_2022.csv")
+#dataset_fe <- fread("./datasets/competencia1_2022.csv")
+
+dataset_fe  <- fread("./datasets/competencia2_2022.csv.gz", stringsAsFactors= TRUE)
+
 
 #diccionario <- read_ods("./datasets/DiccionarioDatos.ods")
 #diccionario <- data.table(diccionario)
@@ -310,8 +314,6 @@ OptBayesiana <- function(dataset,columnas, GLOBAL_iteracion, archivo_log, archiv
 #'------------------------------------------------------------------------------
 # 3. FEATURE ENGINEERING ----
 #'-----------------------------------------------------------------------------
-
-dataset_fe <- fread("./datasets/competencia1_2022.csv")
 
 
 ## imputar nulos? -----  
