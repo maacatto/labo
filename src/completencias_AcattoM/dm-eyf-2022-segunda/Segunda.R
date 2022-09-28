@@ -36,7 +36,7 @@ seeds <- c( 807299, 962041, 705689, 909463, 637597 )
 #setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
 setwd("~/buckets/b1/")   #Establezco el Working Directory
 
-dir_salidas="./labo/src/rpart/TP/exp"
+dir_salidas="./exp/TP/"
 dir.create( dir_salidas )
 
 
@@ -692,7 +692,7 @@ for( corte  in  c( 7500, 8000, 8500, 9000, 9500, 10000, 10500, 11000 ) )
 crearCheckpoint(dir_salidas, archivos_kaggle)
 
 
--------
+---------
 
 
 
