@@ -13,12 +13,41 @@ require("data.table")
 require("lightgbm")
 
 
+
+#Aqui empieza el programa
+setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
+
+dir_salidas="./exp/TP/"
+dir.create( dir_salidas )
+
+#'------------------------------------------------------------------------------
+# 1. Lectura de datos ----
+#'------------------------------------------------------------------------------
+
+## Dataset de entrada <----- ----
+archivo_featureEngineer <- "20220928_152726_part1_FeatEng.csv"
+
+
+#defino archivo input
+archivo_input <- paste0( dir_salidas,"/",archivo_featureEngineer)
+
+
+#cargo el dataset donde voy a entrenar
+dataset  <- fread(archivo_input, stringsAsFactors= TRUE)
+
+#'------------------------------------------------------------------------------
+# 2. ENTRENAMIENTO ----
+#'------------------------------------------------------------------------------
+## Hyperparametros <-----  ----
+
 #defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento  <- "KA7240_optimos"
+PARAM$experimento  <- "LightGBM"
 
-PARAM$input$dataset       <- "./datasets/competencia2_2022.csv.gz"
+#PARAM$input$dataset       <- "./datasets/competencia2_2022.csv.gz"
+PARAM$input$dataset       <-  archivo_input
+
 PARAM$input$training      <- c( 202103 )
 PARAM$input$future        <- c( 202105 )
 
@@ -46,31 +75,26 @@ PARAM$finalmodel$feature_fraction  <-      0.770306605
 # PARAM$finalmodel$min_data_in_leaf  <-   1380
 # PARAM$finalmodel$feature_fraction  <-      0.245552123089927
 
-
 PARAM$finalmodel$semilla           <- 807299
 
-#------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
-#Aqui empieza el programa
-setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
-
-#cargo el dataset donde voy a entrenar
-dataset  <- fread(PARAM$input$dataset, stringsAsFactors= TRUE)
+#'------------------------------------------------------------------------------
+#'------------------------------------------------------------------------------
 
 
-#--------------------------------------
+
+#'--------------------------------------
 
 #paso la clase a binaria que tome valores {0,1}  enteros
 #set trabaja con la clase  POS = { BAJA+1, BAJA+2 } 
 #esta estrategia es MUY importante
 dataset[ , clase01 := ifelse( clase_ternaria %in%  c("BAJA+2","BAJA+1"), 1L, 0L) ]
 
-#--------------------------------------
-
+#'--------------------------------------
+## Columnas <---- -----
 #los campos que se van a utilizar
 campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01") )
 
-#--------------------------------------
+#'--------------------------------------
 
 
 #establezco donde entreno
@@ -81,10 +105,10 @@ dataset[ foto_mes %in% PARAM$input$training, train  := 1L ]
 #creo las carpetas donde van los resultados
 #creo la carpeta donde va el experimento
 # HT  representa  Hiperparameter Tuning
-dir.create( "./exp/",  showWarnings = FALSE ) 
-dir.create( paste0("./exp/", PARAM$experimento, "/" ), showWarnings = FALSE )
-setwd( paste0("./exp/", PARAM$experimento, "/" ) )   #Establezco el Working Directory DEL EXPERIMENTO
-
+#dir.create( "./exp/",  showWarnings = FALSE ) 
+#dir.create( paste0("./exp/", PARAM$experimento, "/" ), showWarnings = FALSE )
+#setwd( paste0(dir_salidas, PARAM$experimento, "/" ) )   #Establezco el Working Directory DEL EXPERIMENTO
+timestamp=format(Sys.time(), "%Y%m%d_%H%M%S_")
 
 
 #dejo los datos en el formato que necesita LightGBM
@@ -108,14 +132,15 @@ modelo  <- lgb.train( data= dtrain,
 #--------------------------------------
 #ahora imprimo la importancia de variables
 tb_importancia  <-  as.data.table( lgb.importance(modelo) ) 
-archivo_importancia  <- "impo.txt"
+archivo_importancia  <- paste0(dir_salidas, PARAM$experimento, "/" , timestamp ,"_impo.txt" )
 
 fwrite( tb_importancia, 
         file= archivo_importancia, 
         sep= "\t" )
 
-#--------------------------------------
-
+#'------------------------------------------------------------------------------
+# 6. Predicción para Kaggle ----
+#'------------------------------------------------------------------------------
 
 #aplico el modelo a los datos sin clase
 dapply  <- dataset[ foto_mes== PARAM$input$future ]
@@ -130,7 +155,7 @@ tb_entrega[  , prob := prediccion ]
 
 #grabo las probabilidad del modelo
 fwrite( tb_entrega,
-        file= "prediccion.txt",
+        file= paste0(dir_salidas, PARAM$experimento, "/" , timestamp ,"_prediccion.txt" ),
         sep= "\t" )
 
 #ordeno por probabilidad descendente
@@ -146,7 +171,7 @@ for( envios  in  cortes )
   tb_entrega[ 1:envios, Predicted := 1L ]
 
   fwrite( tb_entrega[ , list(numero_de_cliente, Predicted)], 
-          file= paste0(  PARAM$experimento, "_", envios, ".csv" ),
+          file= paste0(dir_salidas, PARAM$experimento, "/" , timestamp ,"_", PARAM$experimento, "_", envios, ".csv" ),
           sep= "," )
 }
 

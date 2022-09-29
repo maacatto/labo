@@ -37,8 +37,8 @@ require("readODS")
 seeds <- c( 807299, 962041, 705689, 909463, 637597 )
 
 #Aqui se debe poner la carpeta de la materia de SU computadora local
-#setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
-setwd("~/buckets/b1/")   #Establezco el Working Directory
+setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
+#setwd("~/buckets/b1/")   #Establezco el Working Directory
 
 dir_salidas="./exp/TP/"
 dir.create( dir_salidas )
