@@ -12,7 +12,7 @@ gc()             #garbage collection
 require("data.table")
 require("lightgbm")
 
-
+require("readODS")
 
 #Aqui empieza el programa
 setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
@@ -20,12 +20,31 @@ setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  
 dir_salidas="./exp/TP/"
 dir.create( dir_salidas )
 
+
+#'------------------------------------------------------------------------------
+# 0. Funciones Auxiliares ----
+#'------------------------------------------------------------------------------
+
+crearCheckpoint <- function(path,filename) 
+{
+  require(rstudioapi)
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, "_antes.R")))
+  documentSave()
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, ".R")))
+}
+
+
+
 #'------------------------------------------------------------------------------
 # 1. Lectura de datos ----
 #'------------------------------------------------------------------------------
 
 ## Dataset de entrada <----- ----
-archivo_featureEngineer <- "20220928_152726_part1_FeatEng.csv"
+archivo_featureEngineer <- "20220929_162111_part1_FeatEng.csv"
 
 
 #defino archivo input
@@ -59,12 +78,12 @@ PARAM$input$future        <- c( 202105 )
 # PARAM$finalmodel$feature_fraction  <-      0.7832319551  #0.8382482539
 
 #resultado de OB: ganancia mas comun (26600000)
-PARAM$finalmodel$max_bin           <-     31
-PARAM$finalmodel$learning_rate     <-      0.005085075
-PARAM$finalmodel$num_iterations    <-    2042
-PARAM$finalmodel$num_leaves        <-   47
-PARAM$finalmodel$min_data_in_leaf  <-   3108
-PARAM$finalmodel$feature_fraction  <-      0.770306605
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-      0.005085075
+# PARAM$finalmodel$num_iterations    <-    2042
+# PARAM$finalmodel$num_leaves        <-   47
+# PARAM$finalmodel$min_data_in_leaf  <-   3108
+# PARAM$finalmodel$feature_fraction  <-      0.770306605
 
 
 #resultado de OB: la maxima ganacia (27360000)
@@ -74,6 +93,64 @@ PARAM$finalmodel$feature_fraction  <-      0.770306605
 # PARAM$finalmodel$num_leaves        <-   1012
 # PARAM$finalmodel$min_data_in_leaf  <-   1380
 # PARAM$finalmodel$feature_fraction  <-      0.245552123089927
+
+#resultado de OB con feature eng (0929): 27570000 kaggle:19.82824 (8500 envios)
+PARAM$finalmodel$max_bin           <-     31
+PARAM$finalmodel$learning_rate     <-      0.0512213178454599
+PARAM$finalmodel$num_iterations    <-    144
+PARAM$finalmodel$num_leaves        <-   345
+PARAM$finalmodel$min_data_in_leaf  <-   2838
+PARAM$finalmodel$feature_fraction  <-      0.209201307170903
+
+#resultado de OB con feature eng (0929): 27380000 kaggle:18.24022 (10500 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-      0.00558132405921785
+# PARAM$finalmodel$num_iterations    <-    1210
+# PARAM$finalmodel$num_leaves        <-   394
+# PARAM$finalmodel$min_data_in_leaf  <-   621
+# PARAM$finalmodel$feature_fraction  <-      0.200421467179802
+
+#resultado de OB con feature eng (0929): 26910000 kaggle:17.83221 (9500 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-      0.00743226892518381
+# PARAM$finalmodel$num_iterations    <-    1549
+# PARAM$finalmodel$num_leaves        <-   112
+# PARAM$finalmodel$min_data_in_leaf  <-   4244
+# PARAM$finalmodel$feature_fraction  <-      0.200359186
+
+#resultado de OB con feature eng (0929): 26620000 kaggle:18.84023 (10500 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-      0.0498724122610133
+# PARAM$finalmodel$num_iterations    <-    176
+# PARAM$finalmodel$num_leaves        <-   18
+# PARAM$finalmodel$min_data_in_leaf  <-   3123
+# PARAM$finalmodel$feature_fraction  <-      0.231419395517015
+
+#resultado de OB con feature eng (0929):  27060000 kaggle:17.51621 (8500 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-       0.023843 
+# PARAM$finalmodel$num_iterations    <-    589
+# PARAM$finalmodel$num_leaves        <-   111
+# PARAM$finalmodel$min_data_in_leaf  <-   3
+# PARAM$finalmodel$feature_fraction  <-      0.502869432
+
+
+#resultado de OB con feature eng (0929):  27470000 kaggle:19.13623 (9000 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-       0.00603474605109611 
+# PARAM$finalmodel$num_iterations    <-    461
+# PARAM$finalmodel$num_leaves        <-   752
+# PARAM$finalmodel$min_data_in_leaf  <-   596
+# PARAM$finalmodel$feature_fraction  <-      0.20111254
+
+
+#resultado de OB con feature eng (0929):  27790000 kaggle:19.40423 (8500 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-       0.00610304458065043 
+# PARAM$finalmodel$num_iterations    <-    1266
+# PARAM$finalmodel$num_leaves        <-   278
+# PARAM$finalmodel$min_data_in_leaf  <-   4
+# PARAM$finalmodel$feature_fraction  <-      0.200550442672245
 
 PARAM$finalmodel$semilla           <- 807299
 
@@ -92,7 +169,7 @@ dataset[ , clase01 := ifelse( clase_ternaria %in%  c("BAJA+2","BAJA+1"), 1L, 0L)
 #'--------------------------------------
 ## Columnas <---- -----
 #los campos que se van a utilizar
-campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01") )
+campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01","clase_binaria","mcuentas_saldo","mprestamos_personales","mcomisiones","mtarjeta_visa_consumo") )
 
 #'--------------------------------------
 
@@ -107,8 +184,9 @@ dataset[ foto_mes %in% PARAM$input$training, train  := 1L ]
 # HT  representa  Hiperparameter Tuning
 #dir.create( "./exp/",  showWarnings = FALSE ) 
 #dir.create( paste0("./exp/", PARAM$experimento, "/" ), showWarnings = FALSE )
+dir.create( paste0(dir_salidas, PARAM$experimento),  showWarnings = FALSE ) 
 #setwd( paste0(dir_salidas, PARAM$experimento, "/" ) )   #Establezco el Working Directory DEL EXPERIMENTO
-timestamp=format(Sys.time(), "%Y%m%d_%H%M%S_")
+timestamp=format(Sys.time(), "%Y%m%d_%H%M%S")
 
 
 #dejo los datos en el formato que necesita LightGBM
@@ -125,7 +203,8 @@ modelo  <- lgb.train( data= dtrain,
                                    num_leaves=         PARAM$finalmodel$num_leaves,
                                    min_data_in_leaf=   PARAM$finalmodel$min_data_in_leaf,
                                    feature_fraction=   PARAM$finalmodel$feature_fraction,
-                                   seed=               PARAM$finalmodel$semilla
+                                   seed=               PARAM$finalmodel$semilla,
+                                   feature_pre_filter= "True" #AGREGUE 0929
                                   )
                     )
 
@@ -154,9 +233,9 @@ tb_entrega  <-  dapply[ , list( numero_de_cliente, foto_mes ) ]
 tb_entrega[  , prob := prediccion ]
 
 #grabo las probabilidad del modelo
-fwrite( tb_entrega,
-        file= paste0(dir_salidas, PARAM$experimento, "/" , timestamp ,"_prediccion.txt" ),
-        sep= "\t" )
+#fwrite( tb_entrega,
+#        file= paste0(dir_salidas, PARAM$experimento, "/" , timestamp ,"_prediccion.txt" ),
+#        sep= "\t" )
 
 #ordeno por probabilidad descendente
 setorder( tb_entrega, -prob )
@@ -164,7 +243,7 @@ setorder( tb_entrega, -prob )
 
 #genero archivos con los  "envios" mejores
 #deben subirse "inteligentemente" a Kaggle para no malgastar submits
-cortes <- seq( 5000, 12000, by=500 )
+cortes <- seq( 7000, 10500, by=500 )
 for( envios  in  cortes )
 {
   tb_entrega[  , Predicted := 0L ]
@@ -176,5 +255,8 @@ for( envios  in  cortes )
 }
 
 #--------------------------------------
+
+#checkpoint
+crearCheckpoint(paste0(dir_salidas, PARAM$experimento), timestamp)
 
 # quit( save= "no" )

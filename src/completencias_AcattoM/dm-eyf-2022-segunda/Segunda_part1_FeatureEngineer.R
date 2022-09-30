@@ -66,12 +66,12 @@ crearCheckpoint <- function(path,filename)
 {
   require(rstudioapi)
   file.copy(rstudioapi::getSourceEditorContext()$path,
-            to = file.path(dir_salidas,
-                           paste0(archivos_kaggle, "antes.R")))
+            to = file.path(path,
+                           paste0(filename, "_antes.R")))
   documentSave()
   file.copy(rstudioapi::getSourceEditorContext()$path,
-            to = file.path(dir_salidas,
-                           paste0(archivos_kaggle, ".R")))
+            to = file.path(path,
+                           paste0(filename, ".R")))
 }
 
 
@@ -158,6 +158,51 @@ dataset_fe[foto_mes==202105, minversion2 := minversion2 / 1.033 / 1.047 ]
 dataset_fe[foto_mes==202105, Visa_mpagominimo := Visa_mpagominimo / 1.033 / 1.047 ]
 dataset_fe[foto_mes==202105, Master_mpagominimo := Master_mpagominimo / 1.033 / 1.047 ]
 
+###antiguedades -----
+dataset_fe[foto_mes==202105, cliente_antiguedad := cliente_antiguedad - 2 ]
+
+
+### Rankeo + escalado + relativizar montos -----
+library(tidyverse)
+descr <- dataset_fe[ foto_mes == 202103] %>%   summarise(Minimo = min(mcuentas_saldo), Q1 = quantile(mcuentas_saldo, probs = 0.25), Mediana = quantile(mcuentas_saldo, probs = 0.5), 
+                                                      Promedio = round(mean(mcuentas_saldo),0), Q3 = quantile(mcuentas_saldo, probs = 0.75),  Maximo = max(mcuentas_saldo), Desvio = round(sd(mcuentas_saldo),0))
+
+dataset_fe <- dataset_fe[ foto_mes == 202103 & mcuentas_saldo < descr$Q1 , n_mcuentas_saldo_qntl := 1]
+dataset_fe <- dataset_fe[ foto_mes == 202103 & mcuentas_saldo >= descr$Q1 & mcuentas_saldo < descr$Mediana  , n_mcuentas_saldo_qntl := 2]
+dataset_fe <- dataset_fe[ foto_mes == 202103 & mcuentas_saldo >= descr$Mediana & mcuentas_saldo < descr$Q3  , n_mcuentas_saldo_qntl := 3]
+dataset_fe <- dataset_fe[ foto_mes == 202103 & mcuentas_saldo >= descr$Q3 , n_mcuentas_saldo_qntl := 4]
+dataset_fe <- dataset_fe[ foto_mes == 202103, n_mcuentas_saldo_scl := mcuentas_saldo - mean(mcuentas_saldo)]
+
+descr <- dataset_fe[ foto_mes == 202105] %>%   summarise(Minimo = min(mcuentas_saldo), Q1 = quantile(mcuentas_saldo, probs = 0.25), Mediana = quantile(mcuentas_saldo, probs = 0.5), 
+                                                      Promedio = round(mean(mcuentas_saldo),0), Q3 = quantile(mcuentas_saldo, probs = 0.75),  Maximo = max(mcuentas_saldo), Desvio = round(sd(mcuentas_saldo),0))
+descr
+dataset_fe <- dataset_fe[ foto_mes == 202105 & mcuentas_saldo < descr$Q1 , n_mcuentas_saldo_qntl := 1]
+dataset_fe <- dataset_fe[ foto_mes == 202105 & mcuentas_saldo >= descr$Q1 & mcuentas_saldo < descr$Mediana  , n_mcuentas_saldo_qntl := 2]
+dataset_fe <- dataset_fe[ foto_mes == 202105 & mcuentas_saldo >= descr$Mediana & mcuentas_saldo < descr$Q3  , n_mcuentas_saldo_qntl := 3]
+dataset_fe <- dataset_fe[ foto_mes == 202105 & mcuentas_saldo >= descr$Q3 , n_mcuentas_saldo_qntl := 4]
+dataset_fe <- dataset_fe[ foto_mes == 202105, n_mcuentas_saldo_scl := mcuentas_saldo - mean(mcuentas_saldo)]
+
+dataset_fe <- dataset_fe[ foto_mes == 202103, n_mcuentas_saldo_qntl_rnk := frank(n_mcuentas_saldo_qntl)]
+dataset_fe <- dataset_fe[ foto_mes == 202103 & mcuentas_saldo >=0 , n_mcuentas_saldo_qntl_rnk_gz := frank(n_mcuentas_saldo_qntl)]
+dataset_fe <- dataset_fe[ foto_mes == 202103 & mcuentas_saldo <0 , n_mcuentas_saldo_qntl_rnk_lz := frank(n_mcuentas_saldo_qntl)]
+
+dataset_fe <- dataset_fe[ foto_mes == 202105, n_mcuentas_saldo_qntl_rnk := frank(n_mcuentas_saldo_qntl)]
+dataset_fe <- dataset_fe[ foto_mes == 202105 & mcuentas_saldo >=0 , n_mcuentas_saldo_qntl_rnk_gz := frank(n_mcuentas_saldo_qntl)]
+dataset_fe <- dataset_fe[ foto_mes == 202105 & mcuentas_saldo <0 , n_mcuentas_saldo_qntl_rnk_lz := frank(n_mcuentas_saldo_qntl)]
+
+dataset_fe <- dataset_fe[ foto_mes == 202103, n_mprestamos_personales_rnk := frank(mprestamos_personales)]
+dataset_fe <- dataset_fe[ foto_mes == 202103, n_mprestamos_personales_scl := scale(mprestamos_personales)]
+dataset_fe <- dataset_fe[ foto_mes == 202105, n_mprestamos_personales_rnk := frank(mprestamos_personales)]
+dataset_fe <- dataset_fe[ foto_mes == 202105, n_mprestamos_personales_scl := scale(mprestamos_personales)]
+
+dataset_fe <- dataset_fe[ foto_mes == 202103, n_mcomisiones_scl := scale(mcomisiones)]
+dataset_fe <- dataset_fe[ foto_mes == 202105, n_mcomisiones_scl := scale(mcomisiones)]
+
+dataset_fe <- dataset_fe[ foto_mes == 202103, n_mtarjeta_visa_consumo_scl := scale(mtarjeta_visa_consumo)]
+dataset_fe <- dataset_fe[ foto_mes == 202105, n_mtarjeta_visa_consumo_scl := scale(mtarjeta_visa_consumo)]
+
+dataset_fe <- dataset_fe[ foto_mes == 202103, n_mcuentas_saldo_por_com := mcuentas_saldo / mcomisiones]
+dataset_fe <- dataset_fe[ foto_mes == 202105, n_mcuentas_saldo_por_com := mcuentas_saldo / mcomisiones]
 
 
 ## n_Total_Pagos: deuda total por cliente (todas las tarjetas)----
@@ -255,106 +300,22 @@ dataset_fe[ foto_mes==202103,
             clase_binaria :=  ifelse( clase_ternaria=="CONTINUA", "NO", "SI" ) ]
 
 
-
+## Rank
 
 dataset_fe$n_tarjetas_minimos_pagado
+
 
 
 #'------------------------------------------------------------------------------
 # 5. Grabar dataset final en csv -----
 #'-----------------------------------------------------------------------------
-#archivo_featureEngineer=format(Sys.time(), "%Y%m%d_%H%M%S_")
-archivo_featureEngineer = "20220928_152726_part1_FeatEng.csv"
+archivo_featureEngineer=paste0(format(Sys.time(), "%Y%m%d_%H%M%S_"),"part1_FeatEng")
+#archivo_featureEngineer = "20220928_152726_part1_FeatEng"
 
 fwrite( dataset_fe, #solo los campos para Kaggle
-        file= paste0( dir_salidas,"/",archivo_featureEngineer),
+        file= paste0( dir_salidas,"/",archivo_featureEngineer,".csv"),
         sep=  "," )
 
+#checkpoint
+crearCheckpoint(dir_salidas,archivo_featureEngineer)
 
-#' #'------------------------------------------------------------------------------
-#' # 5. OB -----
-#' #'-----------------------------------------------------------------------------
-#' # Creo dataset y columnas para la funcion
-#' dataset  <- copy(dataset_fe)
-#' dataset  <- dataset[ foto_mes==202103 ]
-#' columnas <- "clase_binaria ~ . "
-#' 
-#' 
-#' 
-#' # (opcional) Defino la  Optimizacion Bayesiana -----
-#' 
-#' kBO_iter  <- 100   #cantidad de iteraciones de la Optimizacion Bayesiana
-#' 
-#' 
-#' #Estructura que define los hiperparámetros y sus rangos
-#' hs  <- makeParamSet(
-#'           makeIntegerParam("num.trees" ,        lower=  100L, upper= 2500L),  #la letra L al final significa ENTERO
-#'           makeIntegerParam("max.depth",         lower=    1L, upper=   30L),  # 0 significa profundidad infinita
-#'           makeIntegerParam("min.node.size" ,    lower=    1L, upper=  500L),
-#'           makeIntegerParam("mtry" ,             lower=    2L, upper=   50L))
-#' 
-#' ksemilla_azar  <- seeds[1]  #Aqui poner la propia semilla seeds[0]   #cambiar por la primer semilla
-#' 
-#' archivo_log  <- paste0( dir_salidas,"/", "20220911_034709", "OB.txt")
-#' archivo_BO   <- paste0( dir_salidas,"/", "20220911_034709", "OB.RDATA") 
-#' 
-#' #leo si ya existe el log, para retomar en caso que se se corte el programa
-#' GLOBAL_iteracion  <- 0
-#' 
-#' 
-#' 
-#' #OptBayesiana(dataset,columnas,GLOBAL_iteracion,archivo_log,archivo_BO)
-#' #en estos archivos quedan los resultados
-#' kbayesiana  <- archivo_log
-#' klog        <- archivo_BO
-#' 
-#' #leo si ya existe el log, para retomar en caso que se se corte el programa
-#' GLOBAL_iteracion  <- 0   #inicializo la variable global
-#' 
-#' #si ya existe el archivo log, traigo hasta donde llegue
-#' if( file.exists(klog) )
-#' {
-#'   tabla_log  <- fread( klog )
-#'   GLOBAL_iteracion  <- nrow( tabla_log )
-#' }
-#' 
-#' 
-#' 
-#' #paso a trabajar con clase binaria POS={BAJA+2}   NEG={BAJA+1, CONTINUA}
-#' dataset[ , clase_binaria := as.factor(ifelse( clase_ternaria=="BAJA+2", "POS", "NEG" )) ]
-#' dataset[ , clase_ternaria := NULL ]  #elimino la clase_ternaria, ya no la necesito
-#' 
-#' 
-#' #imputo los nulos, ya que ranger no acepta nulos
-#' #Leo Breiman, ¿por que le temias a los nulos?
-#' dataset  <- na.roughfix( dataset )
-#' 
-#' 
-#' 
-#' #Aqui comienza la configuracion de la Bayesian Optimization
-#' 
-#' configureMlr( show.learner.output = FALSE)
-#' 
-#' funcion_optimizar  <- EstimarGanancia_ranger
-#' 
-#' #configuro la busqueda bayesiana,  los hiperparametros que se van a optimizar
-#' #por favor, no desesperarse por lo complejo
-#' obj.fun  <- makeSingleObjectiveFunction(
-#'   fn=       funcion_optimizar,
-#'   minimize= FALSE,   #estoy Maximizando la ganancia
-#'   noisy=    TRUE,
-#'   par.set=  hs,
-#'   has.simple.signature = FALSE
-#' )
-#' 
-#' ctrl  <- makeMBOControl( save.on.disk.at.time= 120,  save.file.path= kbayesiana)
-#' ctrl  <- setMBOControlTermination(ctrl, iters= kBO_iter )
-#' ctrl  <- setMBOControlInfill(ctrl, crit= makeMBOInfillCritEI())
-#' 
-#' surr.km  <-  makeLearner("regr.km", predict.type= "se", covtype= "matern3_2", control= list(trace= TRUE))
-#' 
-#' #inicio la optimizacion bayesiana
-#' if(!file.exists(kbayesiana)) {
-#'   run  <- mbo(obj.fun, learner = surr.km, control = ctrl)
-#' } else  run  <- mboContinue( kbayesiana )   #retomo en caso que ya exista
-#' 

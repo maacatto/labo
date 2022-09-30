@@ -16,3 +16,8 @@ estad.descrip.precios <- datos_limpios %>%
             Desvio = round(sd(precio_en_miles),0))
 # tabla resultante
 estad.descrip.precios
+
+
+
+- Relativizar montos entre ellos, por ejemplo, 
+	* consumo de algo como % del sueldo.
