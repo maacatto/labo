@@ -95,12 +95,12 @@ PARAM$input$future        <- c( 202105 )
 # PARAM$finalmodel$feature_fraction  <-      0.245552123089927
 
 #resultado de OB con feature eng (0929): 27570000 kaggle:19.82824 (8500 envios)
-PARAM$finalmodel$max_bin           <-     31
-PARAM$finalmodel$learning_rate     <-      0.0512213178454599
-PARAM$finalmodel$num_iterations    <-    144
-PARAM$finalmodel$num_leaves        <-   345
-PARAM$finalmodel$min_data_in_leaf  <-   2838
-PARAM$finalmodel$feature_fraction  <-      0.209201307170903
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-      0.0512213178454599
+# PARAM$finalmodel$num_iterations    <-    144
+# PARAM$finalmodel$num_leaves        <-   345
+# PARAM$finalmodel$min_data_in_leaf  <-   2838
+# PARAM$finalmodel$feature_fraction  <-      0.209201307170903
 
 #resultado de OB con feature eng (0929): 27380000 kaggle:18.24022 (10500 envios)
 # PARAM$finalmodel$max_bin           <-     31
@@ -145,12 +145,12 @@ PARAM$finalmodel$feature_fraction  <-      0.209201307170903
 
 
 #resultado de OB con feature eng (0929):  27790000 kaggle:19.40423 (8500 envios)
-# PARAM$finalmodel$max_bin           <-     31
-# PARAM$finalmodel$learning_rate     <-       0.00610304458065043 
-# PARAM$finalmodel$num_iterations    <-    1266
-# PARAM$finalmodel$num_leaves        <-   278
-# PARAM$finalmodel$min_data_in_leaf  <-   4
-# PARAM$finalmodel$feature_fraction  <-      0.200550442672245
+PARAM$finalmodel$max_bin           <-     31
+PARAM$finalmodel$learning_rate     <-       0.00610304458065043 
+PARAM$finalmodel$num_iterations    <-    1266
+PARAM$finalmodel$num_leaves        <-   278
+PARAM$finalmodel$min_data_in_leaf  <-   4
+PARAM$finalmodel$feature_fraction  <-      0.200550442672245
 
 PARAM$finalmodel$semilla           <- 807299
 
