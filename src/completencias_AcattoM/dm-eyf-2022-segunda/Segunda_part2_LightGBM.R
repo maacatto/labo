@@ -42,17 +42,25 @@ crearCheckpoint <- function(path,filename)
 #'------------------------------------------------------------------------------
 # 1. Lectura de datos ----
 #'------------------------------------------------------------------------------
-
 ## Dataset de entrada <----- ----
-archivo_featureEngineer <- "20220929_162111_part1_FeatEng.csv"
+#archivo_featureEngineer <- "20220929_162111"
+#archivo_featureEngineer <- "20221001_185830"
+#archivo_featureEngineer <- "20221002_010212"
+#archivo_featureEngineer <- "20221002_020526"
+# archivo_featureEngineer <- "20221002_023834"
+#archivo_featureEngineer <- "20221002_225454"
+archivo_featureEngineer <- "20221002_230635"
+
 
 
 #defino archivo input
-archivo_input <- paste0( dir_salidas,"/",archivo_featureEngineer)
-
-
+archivo_input <- paste0( dir_salidas,"/",archivo_featureEngineer,"_part1_FeatEng.csv")
 #cargo el dataset donde voy a entrenar
 dataset  <- fread(archivo_input, stringsAsFactors= TRUE)
+
+#cargo columnas a quitar definidas en el feature engineering
+archivo_columnas_a_quitar <- paste0( dir_salidas,"/",archivo_featureEngineer,"_part1_columnas_a_quitar.csv")
+columnas_a_quitar  <- c(fread(archivo_columnas_a_quitar ))$columnas_a_quitar
 
 #'------------------------------------------------------------------------------
 # 2. ENTRENAMIENTO ----
@@ -145,12 +153,28 @@ PARAM$input$future        <- c( 202105 )
 
 
 #resultado de OB con feature eng (0929):  27790000 kaggle:19.40423 (8500 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-       0.00610304458065043
+# PARAM$finalmodel$num_iterations    <-    1266  #1266
+# PARAM$finalmodel$num_leaves        <-   278
+# PARAM$finalmodel$min_data_in_leaf  <-   4
+# PARAM$finalmodel$feature_fraction  <-      0.200550442672245
+
+#resultado de OB con feature eng (0929):  27104000 kaggle:19.26423 (8500 envios)
+# PARAM$finalmodel$max_bin           <-     31
+# PARAM$finalmodel$learning_rate     <-       0.00525615530368289 
+# PARAM$finalmodel$num_iterations    <-    2183
+# PARAM$finalmodel$num_leaves        <-   81
+# PARAM$finalmodel$min_data_in_leaf  <-   96
+# PARAM$finalmodel$feature_fraction  <-      0.468217739201665
+
+#resultado de OB con feature eng (0929):  27150000 kaggle:19.60823 (9000 envios)
 PARAM$finalmodel$max_bin           <-     31
-PARAM$finalmodel$learning_rate     <-       0.00610304458065043 
-PARAM$finalmodel$num_iterations    <-    1266
-PARAM$finalmodel$num_leaves        <-   278
-PARAM$finalmodel$min_data_in_leaf  <-   4
-PARAM$finalmodel$feature_fraction  <-      0.200550442672245
+PARAM$finalmodel$learning_rate     <-       0.00895073371986516
+PARAM$finalmodel$num_iterations    <-    1157
+PARAM$finalmodel$num_leaves        <-   18
+PARAM$finalmodel$min_data_in_leaf  <-   2
+PARAM$finalmodel$feature_fraction  <-      0.46710057742027
 
 PARAM$finalmodel$semilla           <- 807299
 
@@ -169,7 +193,7 @@ dataset[ , clase01 := ifelse( clase_ternaria %in%  c("BAJA+2","BAJA+1"), 1L, 0L)
 #'--------------------------------------
 ## Columnas <---- -----
 #los campos que se van a utilizar
-campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01","clase_binaria","mcuentas_saldo","mprestamos_personales","mcomisiones","mtarjeta_visa_consumo") )
+campos_buenos  <- setdiff( colnames(dataset),c( "clase_ternaria","clase01","clase_binaria",columnas_a_quitar) )
 
 #'--------------------------------------
 
@@ -178,7 +202,7 @@ campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01","clas
 dataset[ , train  := 0L ]
 dataset[ foto_mes %in% PARAM$input$training, train  := 1L ]
 
-#--------------------------------------
+#'--------------------------------------
 #creo las carpetas donde van los resultados
 #creo la carpeta donde va el experimento
 # HT  representa  Hiperparameter Tuning
@@ -208,7 +232,7 @@ modelo  <- lgb.train( data= dtrain,
                                   )
                     )
 
-#--------------------------------------
+#'--------------------------------------
 #ahora imprimo la importancia de variables
 tb_importancia  <-  as.data.table( lgb.importance(modelo) ) 
 archivo_importancia  <- paste0(dir_salidas, PARAM$experimento, "/" , timestamp ,"_impo.txt" )
@@ -254,9 +278,13 @@ for( envios  in  cortes )
           sep= "," )
 }
 
-#--------------------------------------
+#'--------------------------------------
 
 #checkpoint
 crearCheckpoint(paste0(dir_salidas, PARAM$experimento), timestamp)
 
 # quit( save= "no" )
+
+# fwrite( list(campos_buenos), 
+#         file= paste0(dir_salidas, PARAM$experimento, "/" , timestamp ,"_", PARAM$experimento, "_", envios, "_campos.csv" ),
+#         sep= "," )

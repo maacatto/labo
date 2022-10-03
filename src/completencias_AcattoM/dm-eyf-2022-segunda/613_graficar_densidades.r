@@ -69,15 +69,41 @@ dataset <- dataset[ foto_mes == 202105 & mcuentas_saldo >= descr$Q3 , mcuentas_s
 dataset <- dataset[ foto_mes == 202105, mcuentas_saldo_scl := mcuentas_saldo - mean(mcuentas_saldo)]
 
 
+#frank
 
+columnas_frank <- c("mcuentas_saldo")
+for (campo in columnas_frank)
+{
+  nrows <- length(dataset[ foto_mes == 202103,get(campo)])
+  dataset <- dataset[ foto_mes == 202103, paste0("n_", campo,"_rnk") := (frank(get(campo)) -1) / (nrows-1)]
+  dataset <- dataset[ foto_mes == 202105, paste0("n_", campo,"_rnk") := (frank(get(campo)) -1) / (nrows-1)]
+  
+  nrows <- length(dataset[ foto_mes == 202103 & get(campo) >=0,get(campo)])
+  dataset <- dataset[ foto_mes == 202103 & get(campo) >=0, paste0("n_", campo,"_rnk_gz") := (frank(get(campo)) -1) / (nrows-1)]
+  nrows <- length(dataset[ foto_mes == 202103 & get(campo) <0,get(campo)])
+  dataset <- dataset[ foto_mes == 202103 & get(campo) <0, paste0("n_", campo,"_rnk_lz") := (frank(-get(campo)) -1) / (nrows-1)]
 
-dataset <- dataset[ foto_mes == 202103, mcuentas_saldo_rnk := frank(mcuentas_saldo_qntl)]
-dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo >=0 , mcuentas_saldo_rnk_gz := frank(mcuentas_saldo_qntl)]
-dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo <0 , mcuentas_saldo_rnk_lz := frank(mcuentas_saldo_qntl)]
+  nrows <- length(dataset[ foto_mes == 202105 & get(campo) >=0,get(campo)])
+  dataset <- dataset[ foto_mes == 202105 & get(campo) >=0, paste0("n_", campo,"_rnk_gz") := (frank(get(campo)) -1) / (nrows-1)]
+  nrows <- length(dataset[ foto_mes == 202105 & get(campo) <0,get(campo)])
+  dataset <- dataset[ foto_mes == 202105 & get(campo) <0, paste0("n_", campo,"_rnk_lz") := (frank(-get(campo)) -1) / (nrows-1)]
+  
+  
+  dataset <- dataset[ foto_mes == 202103 , paste0("n_", campo,"_rnk") :=  rowSums( cbind( get(paste0("n_", campo,"_rnk_gz")),   - get(paste0("n_", campo,"_rnk_lz"))) , na.rm=TRUE )  ]
+  dataset <- dataset[ foto_mes == 202105 , paste0("n_", campo,"_rnk") :=  rowSums( cbind( get(paste0("n_", campo,"_rnk_gz")),   - get(paste0("n_", campo,"_rnk_lz"))) , na.rm=TRUE )  ]
+  
+  
+}
+# dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo >=0 , mcuentas_saldo_rnk_gz := (frank(mcuentas_saldo) -1) / (nrows-1)]
+# dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo <0 , mcuentas_saldo_rnk_lz := (frank(mcuentas_saldo) -1) / (nrows-1)]
+  # dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo >=0 , mcuentas_saldo_log_rnk_gz := (frank(log(mcuentas_saldo)) -1) / (nrows-1)]
+  # dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo <0 , mcuentas_saldo_log_rnk_lz := (frank(log(-mcuentas_saldo)) -1) / (nrows-1)]
+  # dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo >=0 , mcuentas_saldo_log_gz := log(mcuentas_saldo+0.1)]
+  # dataset <- dataset[ foto_mes == 202103 & mcuentas_saldo <0 , mcuentas_saldo_log_lz := log(-mcuentas_saldo+0.1)]
 
-dataset <- dataset[ foto_mes == 202105, mcuentas_saldo_rnk := frank(mcuentas_saldo_qntl)]
-dataset <- dataset[ foto_mes == 202105 & mcuentas_saldo >=0 , mcuentas_saldo_rnk_gz := frank(mcuentas_saldo_qntl)]
-dataset <- dataset[ foto_mes == 202105 & mcuentas_saldo <0 , mcuentas_saldo_rnk_lz := frank(mcuentas_saldo_qntl)]
+# dataset <- dataset[ foto_mes == 202105, mcuentas_saldo_rnk := frank(mcuentas_saldo_qntl)]
+# dataset <- dataset[ foto_mes == 202105 & mcuentas_saldo >=0 , mcuentas_saldo_rnk_gz := frank(mcuentas_saldo_qntl)]
+# dataset <- dataset[ foto_mes == 202105 & mcuentas_saldo <0 , mcuentas_saldo_rnk_lz := frank(mcuentas_saldo_qntl)]
 
 dataset <- dataset[ foto_mes == 202103, mprestamos_personales_rnk := frank(mprestamos_personales)]
 dataset <- dataset[ foto_mes == 202103, mprestamos_personales_scl := scale(mprestamos_personales)]
@@ -131,7 +157,7 @@ setwd("./labo/src/completencias_AcattoM/dm-eyf-2022-segunda/datadrifting/")
 
 pdf("densidades_01_03.pdf")
 
-for( campo in  campos_buenos )
+for( campo in  campos_buenos)
 {
   cat( campo, "  " )
   
@@ -144,3 +170,18 @@ for( campo in  campos_buenos )
 
 dev.off()
 
+campo
+
+#Grabar columnas en archivo
+columnas_buenas <- c("foto_mes"	, "mcuentas_saldo", 	"n_mcuentas_saldo_rnk",	"n_mcuentas_saldo_rnk_gz",	"n_mcuentas_saldo_rnk_lz")
+
+fwrite( dataset[, ..columnas_buenas], #solo los campos para Kaggle
+        file= paste0( "dataset.csv"),
+        sep=  "," )
+
+
+#Hist
+hist(log2(dataset[foto_mes==202103 & mcuentas_saldo < 0 ,- mcuentas_saldo]))
+hist(log2(dataset[foto_mes==202103  ,n_mcuentas_saldo_rnk]))
+     
+     

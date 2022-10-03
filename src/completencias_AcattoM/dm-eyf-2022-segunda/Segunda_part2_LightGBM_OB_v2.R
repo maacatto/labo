@@ -1,4 +1,4 @@
-# source( "~/labo/src/KaggleHack/z881_lightgbm_binaria_BO.r" )
+# source( "~/labo/src/lightgbm/z723_lightgbm_binaria_BO.r" )
 # Este script esta pensado para correr en Google Cloud
 #   8 vCPU
 #  32 GB memoria RAM
@@ -29,36 +29,82 @@ options(error = function() {
 })
 
 
+require("readODS")
+
+#Aqui se debe poner la carpeta de la computadora local
+#setwd("~/buckets/b1/")   #Establezco el Working Directory
+setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
+
+dir_salidas="./exp/TP/"
+dir.create( dir_salidas )
+
+#'------------------------------------------------------------------------------
+# 1. Lectura de datos ----
+#'------------------------------------------------------------------------------
+
+## Dataset de entrada <----- ----
+archivo_featureEngineer <- "20221002_023834_part1_FeatEng.csv"
+
+
+#defino archivo input
+archivo_input <- paste0( dir_salidas,archivo_featureEngineer)
+
+
+#cargo el dataset donde voy a entrenar
+dataset  <- fread(archivo_input, stringsAsFactors= TRUE)
+
+## Hyperparametros <-----  ----
 
 #Aqui se cargan los hiperparametros
 hs <- makeParamSet( 
-         makeNumericParam("learning_rate",    lower=    0.001, upper=    0.3),
+         makeNumericParam("learning_rate",    lower=    0.005, upper=    0.3),
          makeNumericParam("feature_fraction", lower=    0.2  , upper=    1.0),
          makeIntegerParam("min_data_in_leaf", lower=    0L   , upper=  8000L),
-         makeIntegerParam("num_leaves",       lower=   16L   , upper=  2048L),
+         makeIntegerParam("num_leaves",       lower=   16L   , upper=  1024L),
          makeIntegerParam("envios",           lower= 5000L   , upper= 15000L)
         )
 
 #defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
-PARAM  <- list()
+PARAM <- list()
+PARAM$experimento  <- "LightGBM"
 
-PARAM$experimento  <- "HT8810"
-
-PARAM$input$dataset       <- "./datasets/competencia2_2022.csv.gz"
-PARAM$input$training      <- c( 202101 )
+#PARAM$input$dataset       <- "./datasets/competencia2_2022.csv.gz"
+PARAM$input$dataset       <-  archivo_input
+PARAM$input$training      <- c( 202103 )
 
 PARAM$trainingstrategy$undersampling  <-  1.0   # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$semilla_azar   <- 962041  #Aqui poner la propia semilla
+PARAM$trainingstrategy$semilla_azar   <- 807299  #Aqui poner la propia semilla
 
 PARAM$hyperparametertuning$iteraciones <- 100
 PARAM$hyperparametertuning$xval_folds  <- 5
 PARAM$hyperparametertuning$POS_ganancia  <- 78000
 PARAM$hyperparametertuning$NEG_ganancia  <- -2000
 
-PARAM$hyperparametertuning$semilla_azar  <- 807299  #Aqui poner la propia semilla, PUEDE ser distinta a la de trainingstrategy
+#PARAM$hyperparametertuning$semilla_azar  <- 962041  #Aqui poner la propia semilla, PUEDE ser distinta a la de trainingstrategy
+PARAM$hyperparametertuning$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
+#'------------------------------------------------------------------------------
+# 2. Funciones Auxiliares ----
+#'------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------
+crearCheckpoint <- function(path,filename) 
+{
+  require(rstudioapi)
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, "_antes.R")))
+  documentSave()
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, ".R")))
+}
+
+
+
+
+
+
+#'------------------------------------------------------------------------------
 #graba a un archivo los componentes de lista
 #para el primer registro, escribe antes los titulos
 
@@ -82,7 +128,7 @@ loguear  <- function( reg, arch=NA, folder="./exp/", ext=".txt", verbose=TRUE )
 
   if( verbose )  cat( linea )   #imprimo por pantalla
 }
-#------------------------------------------------------------------------------
+#'------------------------------------------------------------------------------
 #esta funcion calcula internamente la ganancia de la prediccion probs
 
 fganancia_logistic_lightgbm  <- function( probs, datos) 
@@ -102,11 +148,11 @@ fganancia_logistic_lightgbm  <- function( probs, datos)
                 "value"=  ganancia,
                 "higher_better"= TRUE ) )
 }
-#------------------------------------------------------------------------------
+#'------------------------------------------------------------------------------
 #esta funcion solo puede recibir los parametros que se estan optimizando
 #el resto de los parametros se pasan como variables globales, la semilla del mal ...
 
-EstimarGanancia_lightgbm  <- function( x )
+EstimarGanancia_lightgbm_old  <- function( x )
 {
   gc()  #libero memoria
 
@@ -184,21 +230,102 @@ EstimarGanancia_lightgbm  <- function( x )
 
   return( ganancia_normalizada )
 }
-#------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
+
+
+EstimarGanancia_lightgbm  <- function( x ) {
+  vector_ganancia <- c()
+  for (semilla in PARAM$hyperparametertuning$semillas_azar) {
+    gc()  #libero memoria
+    #llevo el registro de la iteracion por la que voy
+    GLOBAL_iteracion  <<- GLOBAL_iteracion + 1
+    
+    #para usar en fganancia_logistic_lightgbm
+    GLOBAL_envios <<- as.integer(x$envios/PARAM$hyperparametertuning$xval_folds)   #asigno la variable global
+    
+    kfolds  <- PARAM$hyperparametertuning$xval_folds   # cantidad de folds para cross validation
+    
+    param_basicos  <- list( objective= "binary",
+                            metric= "custom",
+                            first_metric_only= TRUE,
+                            boost_from_average= TRUE,
+                            feature_pre_filter= FALSE,
+                            verbosity= -100,
+                            max_depth=  -1,         # -1 significa no limitar,  por ahora lo dejo fijo
+                            min_gain_to_split= 0.0, #por ahora, lo dejo fijo
+                            lambda_l1= 0.0,         #por ahora, lo dejo fijo
+                            lambda_l2= 0.0,         #por ahora, lo dejo fijo
+                            max_bin= 31,            #por ahora, lo dejo fijo
+                            num_iterations= 9999,   #un numero muy grande, lo limita early_stopping_rounds
+                            force_row_wise= TRUE,   #para que los alumnos no se atemoricen con tantos warning
+                            seed= semilla
+    )
+    
+    #el parametro discolo, que depende de otro
+    param_variable  <- list(  early_stopping_rounds= as.integer(50 + 5/x$learning_rate) )
+    
+    param_completo  <- c( param_basicos, param_variable, x )
+    
+    set.seed( semilla )
+    modelocv  <- lgb.cv( data= dtrain,
+                         eval= fganancia_logistic_lightgbm,
+                         stratified= TRUE, #sobre el cross validation
+                         nfold= kfolds,    #folds del cross validation
+                         param= param_completo,
+                         verbose= -100
+    )
+    
+    #obtengo la ganancia
+    ganancia  <- unlist(modelocv$record_evals$valid$ganancia$eval)[ modelocv$best_iter ]
+    
+    ganancia_normalizada  <-  ganancia* kfolds     #normalizo la ganancia
+    vector_ganancia <- c(vector_ganancia, ganancia_normalizada)
+    
+    param_completo$num_iterations <- modelocv$best_iter  #asigno el mejor num_iterations
+    param_completo["early_stopping_rounds"]  <- NULL     #elimino de la lista el componente  "early_stopping_rounds"
+    
+    #Voy registrando la importancia de variables
+    if( ganancia_normalizada >  GLOBAL_gananciamax )
+    {
+      GLOBAL_gananciamax  <<- ganancia_normalizada
+      modelo  <- lgb.train( data= dtrain,
+                            param= param_completo,
+                            verbose= -100
+      )
+      
+      tb_importancia  <- as.data.table( lgb.importance(modelo ) )
+      archivo_importancia  <- paste0( "impo_", GLOBAL_iteracion,".txt")
+      fwrite( tb_importancia,
+              file= archivo_importancia,
+              sep= "\t" )
+    }
+    
+    
+    #el lenguaje R permite asignarle ATRIBUTOS a cualquier variable
+    attr(ganancia_normalizada ,"extras" )  <- list("num_iterations"= modelocv$best_iter)  #esta es la forma de devolver un parametro extra
+    
+    #logueo
+    xx  <- param_completo
+    xx$ganancia  <- ganancia_normalizada #le agrego la ganancia
+    xx$ganancia_prom <- mean(vector_ganancia)
+    xx$iteracion <- GLOBAL_iteracion
+    loguear( xx, arch= klog )
+  }
+  return( mean(vector_ganancia) )
+}
+
+
+
+#'------------------------------------------------------------------------------
+# 3. OB -----
+#'-----------------------------------------------------------------------------
 #Aqui empieza el programa
-
-#Aqui se debe poner la carpeta de la computadora local
-setwd("~/buckets/b1/")   #Establezco el Working Directory
-
-#cargo el dataset donde voy a entrenar el modelo
-dataset  <- fread( PARAM$input$dataset )
 
 #creo la carpeta donde va el experimento
 # HT  representa  Hiperparameter Tuning
-dir.create( "./exp/",  showWarnings = FALSE ) 
-dir.create( paste0( "./exp/", PARAM$experimento, "/"), showWarnings = FALSE )
-setwd( paste0( "./exp/", PARAM$experimento, "/") )   #Establezco el Working Directory DEL EXPERIMENTO
+dir.create( dir_salidas,  showWarnings = FALSE ) 
+dir.create( paste0( dir_salidas, PARAM$experimento, "/OB/"), showWarnings = FALSE )
+setwd( paste0( dir_salidas, PARAM$experimento, "/OB/") )   #Establezco el Working Directory DEL EXPERIMENTO
+timestamp=format(Sys.time(), "%Y%m%d_%H%M%S")
 
 #en estos archivos quedan los resultados
 kbayesiana  <- paste0( PARAM$experimento, ".RDATA" )
@@ -223,7 +350,7 @@ dataset[ foto_mes %in% PARAM$input$training, clase01 := ifelse( clase_ternaria==
 
 
 #los campos que se van a utilizar
-campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01", "azar", "training" ) )
+campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01", "azar", "training","clase_binaria" ) )
 
 set.seed( PARAM$trainingstrategy$semilla_azar )
 dataset[  , azar := runif( nrow( dataset ) ) ]
@@ -270,5 +397,8 @@ if( !file.exists( kbayesiana ) ) {
 }
 
 
-quit( save="no" )
+#checkpoint
+crearCheckpoint(paste0( dir_salidas, PARAM$experimento, "/OB/"), PARAM$experimento), timestamp)
+
+#quit( save="no" )
 

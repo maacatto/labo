@@ -1,4 +1,5 @@
 - rankeo
+dataset[, paste0("auto_r_", campo, sep = "") := (frankv(dataset, cols = campo) - 1) / (length(dataset[, get(campo)]) - 1)]
 - Percentiles 
 	(file:///G:/My%20Drive/Facultad/Maestria%20DM/Expecializacion/Enfoque%20Estadistico%20del%20aprendizaje/Practica/EEA-2022/clase%206/Preprocesamiento%20Dataset%20Properati.nb.html#Creaci%C3%B3n_de_nueva_variable_precio_en_miles_y_c%C3%A1lculo_de_estadisticas_descriptivas)
 	Ejemplo:# genero una nueva variable de precios en miles para reducir escala en el gráfico
