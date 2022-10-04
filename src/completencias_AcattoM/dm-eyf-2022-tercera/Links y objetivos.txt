@@ -1,0 +1,31 @@
+Links Fundamentales
+
+Invitacion a la Competencia Kaggle : https://www.kaggle.com/t/a926346254804fa6be1d6a5ca04c3a11
+dataset : https://storage.googleapis.com/dmeyf2022/competencia3_2022.csv.gz
+El diccionario de datos es el mismo de la primer competencia : https://storage.googleapis.com/dmeyf2022/DiccionarioDatos.ods
+
+
+para poder trabajar con el dataset desde Google Cloud, debe primero copiarlo en el bucket, tiene entre muchas, estas dos opciones:
+
+Opcion 1 : usando el link del dataset, bajarlo primero a su PC y luego subirlo al bucket a la carpeta datasets desde https://console.cloud.google.com/storage/
+Opcion 2 : abrir una maquina virtual y desde la consola de Ubuntu correr el comando :
+wget https://storage.googleapis.com/dmeyf2022/competencia3_2022.csv.gz  -O   ~/buckets/b1/datasets/competencia3_2022.csv.gz
+En caso de tener dudas sobre (ej machine size, si apagarla, si borrarla, RAM size, etc) sobre la opcion 2, elija de opcion 1
+
+
+
+Objetivos Pedagógicos
+
+Detectar catástrofes en los datos, y resolverlas ( campos "rotos" )
+Enfrentarse al Data Drifting en todo su esplendor, y resolverlo seriamente
+Aprender el arte de crear variables históricas
+Entender el poder de entrenar en la union de varios periodos
+Aprender a desarrollar una Training Strategy adecuada
+en que porción del dataset hacer la optimización de los hiperparámetros
+training
+validation
+testing
+en que porción del dataset entrenar el modelo final
+Utilizar la historia para generar workflows que generen modelos estables ( walk forward validation )
+Utilizar undersampling de la clase mayoritaria para acelerar el procesamiento
+Aprender a trabajar con "grandes" volúmenes de datos : millones de registros y miles de columnas
