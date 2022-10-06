@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 
 git add .
 if %errorlevel% NEQ 0 (goto END)  
