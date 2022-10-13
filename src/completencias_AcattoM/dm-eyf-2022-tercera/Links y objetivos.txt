@@ -29,3 +29,22 @@ en que porción del dataset entrenar el modelo final
 Utilizar la historia para generar workflows que generen modelos estables ( walk forward validation )
 Utilizar undersampling de la clase mayoritaria para acelerar el procesamiento
 Aprender a trabajar con "grandes" volúmenes de datos : millones de registros y miles de columnas
+
+
+
+Reglas de la Segunda Competencia
+
+El modelo final tiene que ser un solo modelo de { XGBoost, LightGBM, CatBoost} entrenado sobre todos los datos históricos que se desee, con todo el Feature Engineering histórico que se desee
+
+Se podrá y deberá utilizar optimización de hiperparámetros, en particular optimización bayesiana.
+
+Usted deberá correr su propia optimización bayesiana.
+Se puede entrenar en la union de varios meses, o subconjuntos de lo anterior
+Se deberá utilizar feature engineering histórico
+Se deberán comparar modelos entrenados en un solo mes vs varios meses
+
+No se pueden crear variables de feature engineering a partir de modelos
+
+No se podrán utilizar ensemble de modelos.
+
+La REPLICABILIDAD de todo su proceso es fundamental.
