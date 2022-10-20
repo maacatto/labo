@@ -1,5 +1,7 @@
 rem @echo off
 
+git pull
+
 git add .
 if %errorlevel% NEQ 0 (goto END)  
 rem Agrego a staging todo lo que vengo trabajando y no subi a github aun. OJO, despues del add hay un espacio y un punto
