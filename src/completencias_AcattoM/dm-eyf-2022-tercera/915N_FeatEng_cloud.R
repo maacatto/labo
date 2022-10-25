@@ -428,28 +428,28 @@ dataset_fe[, n_tarjetas_cierre_tot := ifelse(is.na(n_tarjetas_cierre_tot),0,n_ta
 ###frank ----
 
 #columnas_frank <- c("mcuentas_saldo", "mprestamos_personales","mcomisiones","mtarjeta_visa_consumo")
-columnas_frank <- c("mcuentas_saldo", "mprestamos_personales","mcomisiones","mtarjeta_visa_consumo","mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mautoservicio","mtarjeta_master_consumo","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other",
-                    "Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo")
-columnas_frank <- c(columnas_frank, col_aplicar_DF)
-
-for (campo in columnas_frank)
-{
-  for (mes in meses_train_test)
-  {
-    nrows <- length(dataset_fe[ foto_mes == mes & get(campo) >=0,get(campo)])
-    dataset_fe <- dataset_fe[ foto_mes == mes & get(campo) >=0, paste0("n_", campo,"_rnk_gz") := (frank(get(campo)) -1) / (nrows-1)]
-    nrows <- length(dataset_fe[ foto_mes == mes & get(campo) <0,get(campo)])
-    dataset_fe <- dataset_fe[ foto_mes == mes & get(campo) <0, paste0("n_", campo,"_rnk_lz") := (frank(-get(campo)) -1) / (nrows-1)]
-    
-    dataset_fe <- dataset_fe[ foto_mes == mes , paste0("n_", campo,"_rnk") :=  rowSums( cbind( get(paste0("n_", campo,"_rnk_gz")),   - get(paste0("n_", campo,"_rnk_lz"))) , na.rm=TRUE )  ]
-  }  
-  #elimina columnas 
-  dataset_fe[, c(paste0("n_", campo,"_rnk_gz"),paste0("n_", campo,"_rnk_lz")):=NULL]  # remove two columns
-  
-  #columna a quitar..
-  columnas_a_quitar <- c(columnas_a_quitar,campo)
-}
-
+# columnas_frank <- c("mcuentas_saldo", "mprestamos_personales","mcomisiones","mtarjeta_visa_consumo","mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mautoservicio","mtarjeta_master_consumo","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other",
+#                     "Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo")
+# columnas_frank <- c(columnas_frank, col_aplicar_DF)
+# 
+# for (campo in columnas_frank)
+# {
+#   for (mes in meses_train_test)
+#   {
+#     nrows <- length(dataset_fe[ foto_mes == mes & get(campo) >=0,get(campo)])
+#     dataset_fe <- dataset_fe[ foto_mes == mes & get(campo) >=0, paste0("n_", campo,"_rnk_gz") := (frank(get(campo)) -1) / (nrows-1)]
+#     nrows <- length(dataset_fe[ foto_mes == mes & get(campo) <0,get(campo)])
+#     dataset_fe <- dataset_fe[ foto_mes == mes & get(campo) <0, paste0("n_", campo,"_rnk_lz") := (frank(-get(campo)) -1) / (nrows-1)]
+#     
+#     dataset_fe <- dataset_fe[ foto_mes == mes , paste0("n_", campo,"_rnk") :=  rowSums( cbind( get(paste0("n_", campo,"_rnk_gz")),   - get(paste0("n_", campo,"_rnk_lz"))) , na.rm=TRUE )  ]
+#   }  
+#   #elimina columnas 
+#   dataset_fe[, c(paste0("n_", campo,"_rnk_gz"),paste0("n_", campo,"_rnk_lz")):=NULL]  # remove two columns
+#   
+#   #columna a quitar..
+#   columnas_a_quitar <- c(columnas_a_quitar,campo)
+# }
+# 
 
 
 
@@ -457,12 +457,12 @@ for (campo in columnas_frank)
 
 ## Clase Binaria  ----
 #creo la clase_binaria SI={ BAJA+1, BAJA+2 }    NO={ CONTINUA }
-for (mes in meses_train)
-{
-  dataset_fe[ foto_mes==mes, 
-              clase_binaria :=  ifelse( clase_ternaria=="CONTINUA", "NO", "SI" ) ]
-}
-
+# for (mes in meses_train)
+# {
+#   dataset_fe[ foto_mes==mes, 
+#               clase_binaria :=  ifelse( clase_ternaria=="CONTINUA", "NO", "SI" ) ]
+# }
+# 
 
 ## Rank
 
@@ -482,17 +482,29 @@ for (mes in meses_train)
 #   geom_histogram()
 
 #valvula de seguridad para evitar valores infinitos
-## FIX: paso los infinitos a NULOS-----
-infinitos      <- lapply(names(dataset_fe),function(.name) dataset_fe[ , sum(is.infinite(get(.name)))])
-infinitos_qty  <- sum( unlist( infinitos) )
-if( infinitos_qty > 0 )
-{
-  cat( "ATENCION, hay", infinitos_qty, "valores infinitos en tu dataset. Seran pasados a NA\n" )
-  dataset_fe[mapply(is.infinite, dataset_fe)] <- NA
-}
+# ## FIX: paso los infinitos a NULOS-----
+# infinitos      <- lapply(names(dataset_fe),function(.name) dataset_fe[ , sum(is.infinite(get(.name)))])
+# infinitos_qty  <- sum( unlist( infinitos) )
+# if( infinitos_qty > 0 )
+# {
+#   cat( "ATENCION, hay", infinitos_qty, "valores infinitos en tu dataset. Seran pasados a NA\n" )
+#   dataset_fe[mapply(is.infinite, dataset_fe)] <- NA
+# }
 
 
+#'-------------------------------
 
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+archivo_featureEngineer=paste0(timestamp,"_part1_FeatEng")
+archivo_columnas_a_quitar=paste0(timestamp,"_part1_columnas_a_quitar")
+
+fwrite( data.table(columnas_a_quitar), #solo los campos para Kaggle
+        file= paste0( dir_salidas,"/",archivo_columnas_a_quitar,".csv"),
+        sep=  "," )
+
+
+#checkpoint
+crearCheckpoint(dir_salidas,archivo_featureEngineer)
 
 #'------------------------------------------------------------------------------
 # 5. Grabar dataset final en csv -----
@@ -508,17 +520,5 @@ fwrite( dataset_fe,
         logical01= TRUE,
         sep= "," )
 
-#'-------------------------------
 
-timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-archivo_featureEngineer=paste0(timestamp,"_part1_FeatEng")
-archivo_columnas_a_quitar=paste0(timestamp,"_part1_columnas_a_quitar")
-
-fwrite( data.table(columnas_a_quitar), #solo los campos para Kaggle
-         file= paste0( dir_salidas,"/",archivo_columnas_a_quitar,".csv"),
-         sep=  "," )
-
-
-#checkpoint
-crearCheckpoint(dir_salidas,archivo_featureEngineer)
 

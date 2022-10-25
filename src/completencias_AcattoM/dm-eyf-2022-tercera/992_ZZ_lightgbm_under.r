@@ -35,6 +35,9 @@ options(error = function() {
 
 base_dir <- "~/buckets/b1/"
 
+dir_salidas="./exp/TP/"
+dir.create( dir_salidas )
+
 #creo la carpeta donde va el experimento
 dir.create( paste0( base_dir, "exp/", PARAM$experimento, "/"), showWarnings = FALSE )
 setwd(paste0( base_dir, "exp/", PARAM$experimento, "/"))   #Establezco el Working Directory DEL EXPERIMENTO
@@ -188,4 +191,10 @@ for( i in  1:PARAM$modelos )
   rm( dtrain )
   gc()
 }
+
+#----------------------------------------------------
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+
+#checkpoint
+crearCheckpoint(paste0(base_dir,dir_salidas, PARAM$experimento), timestamp)
 

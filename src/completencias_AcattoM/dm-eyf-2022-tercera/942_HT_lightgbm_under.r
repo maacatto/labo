@@ -81,7 +81,7 @@ hs <- makeParamSet(
 
 
 #si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-kBO_iteraciones  <- 50  #iteraciones de la Optimizacion Bayesiana
+kBO_iteraciones  <- 60  #iteraciones de la Optimizacion Bayesiana
 
 #------------------------------------------------------------------------------
 #graba a un archivo los componentes de lista
@@ -353,7 +353,7 @@ dataset[  , clase01 := ifelse( clase_ternaria=="CONTINUA", 0L, 1L ) ]
 
 
 #los campos que se pueden utilizar para la prediccion
-campos_buenos  <- setdiff( copy(colnames( dataset )), c( "clase01", "clase_ternaria", "fold_train", "fold_validate", "fold_test" ) )
+campos_buenos  <- setdiff( copy(colnames( dataset )), c( "clase01", "clase_ternaria", "fold_train", "fold_validate", "fold_test","azar_under","azar_sampling" ) )
 
 #la particion de train siempre va
 dtrain  <- lgb.Dataset( data=    data.matrix( dataset[ fold_train==1, campos_buenos, with=FALSE] ),
@@ -431,7 +431,7 @@ obj.fun  <- makeSingleObjectiveFunction(
              )
 
 #archivo donde se graba y cada cuantos segundos
-ctrl  <- makeMBOControl( save.on.disk.at.time= 600,  
+ctrl  <- makeMBOControl( save.on.disk.at.time= 120,  
                          save.file.path=       "bayesiana.RDATA" )
                          
 ctrl  <- setMBOControlTermination( ctrl, 
