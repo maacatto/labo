@@ -43,12 +43,31 @@ options(error = function() {
   options(error = NULL); 
   stop("exiting after script error") 
 })
+#'------------------------------------------------------------------------------
+# 2. Funciones Auxiliares ----
+#'------------------------------------------------------------------------------
+
+crearCheckpoint <- function(path,filename) 
+{
+  require(rstudioapi)
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, "_antes.R")))
+  documentSave()
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, ".R")))
+}
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #Aqui empieza el programa
 
 setwd( "~/buckets/b1/" )
+
+dir_salidas="~/buckets/b1/exp/TP/"
+dir.create( dir_salidas )
+
 
 #cargo el dataset donde voy a entrenar
 #esta en la carpeta del exp_input y siempre se llama  dataset.csv.gz
@@ -107,3 +126,12 @@ fwrite( dataset[ fold_train + fold_validate + fold_test >= 1 , ],
         logical01= TRUE,
         sep= "," )
 
+
+
+
+#'-------------------------------
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+archivo_nombre=paste0(timestamp,"_training_strategy_under")
+
+#checkpoint
+crearCheckpoint(dir_salidas,archivo_nombre)

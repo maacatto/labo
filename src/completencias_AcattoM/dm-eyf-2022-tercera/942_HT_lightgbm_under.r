@@ -84,6 +84,27 @@ hs <- makeParamSet(
 #si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
 kBO_iteraciones  <- 60  #iteraciones de la Optimizacion Bayesiana
 
+
+dir_salidas="~/buckets/b1/exp/TP/"
+dir.create( dir_salidas )
+
+
+#'------------------------------------------------------------------------------
+# 2. Funciones Auxiliares ----
+#'------------------------------------------------------------------------------
+
+crearCheckpoint <- function(path,filename) 
+{
+  require(rstudioapi)
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, "_antes.R")))
+  documentSave()
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, ".R")))
+}
+
 #------------------------------------------------------------------------------
 #graba a un archivo los componentes de lista
 #para el primer registro, escribe antes los titulos
@@ -138,25 +159,30 @@ fganancia_lgbm_meseta  <- function( probs, datos)
 
 EstimarGanancia_lightgbm  <- function( x )
 {
-  gc()
-  GLOBAL_iteracion  <<- GLOBAL_iteracion + 1
-
-  param_completo  <- c( param_lgb_basicos,  x )
-
-  param_completo$early_stopping_rounds  <- as.integer(200 + 4/param_completo$learning_rate )
-  
-  #Primero defino el tamaño de las hojas
-  param_completo$min_data_in_leaf  <- pmax( 1,  round( nrow(dtrain) / ( 2.0 ^ x$leaf_size_log ))  )
-  #Luego la cantidad de hojas en funcion del valor anterior, el coverage, y la cantidad de registros
-  param_completo$num_leaves  <-  pmin( 131072, pmax( 2,  round(x$coverage * nrow( dtrain ) / param_completo$min_data_in_leaf ) ) )
-  cat( "min_data_in_leaf:", param_completo$min_data_in_leaf,  ",  num_leaves:", param_completo$num_leaves, "\n" )
-
-  vprob_optima  <<- c()
   #(ACATTO) agregado 20221025
+  vector_prob_corte <- c()
+  vector_estimulos <- c()
   vector_ganancia <- c()
+  
+  GLOBAL_iteracion  <<- GLOBAL_iteracion + 1
+  
   for (semilla in PARAM$semillas_azar) {
+    gc()
+    param_completo  <- c( param_lgb_basicos,  x )
+    #ACATTO
+    param_completo$seed = semilla
+  
+    param_completo$early_stopping_rounds  <- as.integer(200 + 4/param_completo$learning_rate )
     
-    set.seed( semilla )
+    #Primero defino el tamaño de las hojas
+    param_completo$min_data_in_leaf  <- pmax( 1,  round( nrow(dtrain) / ( 2.0 ^ x$leaf_size_log ))  )
+    #Luego la cantidad de hojas en funcion del valor anterior, el coverage, y la cantidad de registros
+    param_completo$num_leaves  <-  pmin( 131072, pmax( 2,  round(x$coverage * nrow( dtrain ) / param_completo$min_data_in_leaf ) ) )
+    cat( "min_data_in_leaf:", param_completo$min_data_in_leaf,  ",  num_leaves:", param_completo$num_leaves, "\n" )
+  
+    vprob_optima  <<- c()
+
+    set.seed( param_completo$seed )
     modelo_train  <- lgb.train( data= dtrain,
                                 valids= list( valid= dvalidate ),
                                 eval=   fganancia_lgbm_meseta,
@@ -180,40 +206,48 @@ EstimarGanancia_lightgbm  <- function( x )
     gc()
   
     ganancia_test_normalizada  <- ganancia_test
+    
+    vector_prob_corte <- c(vector_prob_corte,prob_corte)
+    vector_estimulos <- c(vector_estimulos,cantidad_test_normalizada)
     vector_ganancia <- c(vector_ganancia, ganancia_test_normalizada)
-  
-    #voy grabando las mejores column importance
-    if( ganancia_test_normalizada >  GLOBAL_ganancia )
-    {
-      GLOBAL_ganancia  <<- ganancia_test_normalizada
-      tb_importancia    <- as.data.table( lgb.importance( modelo_train ) )
-  
-      fwrite( tb_importancia,
-              file= paste0( "impo_", GLOBAL_iteracion, ".txt" ),
-              sep= "\t" )
-  
-      rm( tb_importancia )
-    }
-  
-  
-    #logueo final
-    ds  <- list( "cols"= ncol(dtrain),  "rows"= nrow(dtrain) )
-    xx  <- c( ds, copy(param_completo) )
-  
-    #quito los parametros reales
-    xx$min_data_in_leaf <- NULL
-    xx$num_leaves <- NULL
-  
-    xx$early_stopping_rounds  <- NULL
-    xx$num_iterations  <- modelo_train$best_iter
-    xx$prob_corte  <- prob_corte
-    xx$estimulos  <- cantidad_test_normalizada
-    xx$ganancia  <- ganancia_test_normalizada
-    xx$iteracion_bayesiana  <- GLOBAL_iteracion
-  
-    exp_log( xx,  arch= "BO_log.txt" )
   }
-  return( mean(vector_ganancia) )
+  
+ 
+  prob_corte_promedio <- mean(vector_prob_corte)
+  cantidad_test_normalizada_promedio <- mean(vector_estimulos)
+  ganancia_test_normalizada_promedio <- mean(vector_ganancia)
+  
+  #voy grabando las mejores column importance
+  if( ganancia_test_normalizada_promedio >  GLOBAL_ganancia )
+  {
+    GLOBAL_ganancia  <<- ganancia_test_normalizada_promedio
+    tb_importancia    <- as.data.table( lgb.importance( modelo_train ) )
+
+    fwrite( tb_importancia,
+            file= paste0( "impo_", GLOBAL_iteracion, ".txt" ),
+            sep= "\t" )
+
+    rm( tb_importancia )
+  }
+  
+  #logueo final
+  ds  <- list( "cols"= ncol(dtrain),  "rows"= nrow(dtrain) )
+  xx  <- c( ds, copy(param_completo) )
+
+  #quito los parametros reales
+  xx$min_data_in_leaf <- NULL
+  xx$num_leaves <- NULL
+
+  xx$early_stopping_rounds  <- NULL
+  xx$num_iterations  <- modelo_train$best_iter
+  xx$prob_corte  <- prob_corte_promedio
+  xx$estimulos  <- cantidad_test_normalizada_promedio
+  xx$ganancia  <- ganancia_test_normalizada_promedio
+  xx$iteracion_bayesiana  <- GLOBAL_iteracion
+
+  exp_log( xx,  arch= "BO_log.txt" )
+  
+  return( ganancia_test_normalizada_promedio )
 }
 #------------------------------------------------------------------------------
 #esta es la funcion mas mistica de toda la asignatura
@@ -463,3 +497,12 @@ if( !file.exists( "bayesiana.RDATA" ) ) {
   run  <- mboContinue( "bayesiana.RDATA" )   #retomo en caso que ya exista
 }
 
+
+
+
+#'-------------------------------
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+archivo_nombre=paste0(timestamp,"_HT_lightgbm_under")
+
+#checkpoint
+crearCheckpoint(dir_salidas,archivo_nombre)

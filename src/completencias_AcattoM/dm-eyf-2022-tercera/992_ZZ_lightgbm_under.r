@@ -23,6 +23,26 @@ PARAM$modelos  <- 2
 
 ksemilla  <- 102191
 
+dir_salidas="~/buckets/b1/exp/TP/"
+dir.create( dir_salidas )
+
+
+#'------------------------------------------------------------------------------
+# 2. Funciones Auxiliares ----
+#'------------------------------------------------------------------------------
+
+crearCheckpoint <- function(path,filename) 
+{
+  require(rstudioapi)
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, "_antes.R")))
+  documentSave()
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, ".R")))
+}
+
 #------------------------------------------------------------------------------
 options(error = function() { 
   traceback(20); 
@@ -192,9 +212,13 @@ for( i in  1:PARAM$modelos )
   gc()
 }
 
+
+
+
 #----------------------------------------------------
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+archivo_nombre=paste0(timestamp,"_lightgbm_under")
 
 #checkpoint
-crearCheckpoint(paste0(base_dir,dir_salidas, PARAM$experimento), timestamp)
+crearCheckpoint(dir_salidas,archivo_nombre)
 
