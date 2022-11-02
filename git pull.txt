@@ -1,3 +1,0 @@
-git merge upstream/main
-
-git pull

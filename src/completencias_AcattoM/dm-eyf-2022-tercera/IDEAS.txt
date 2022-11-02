@@ -1,0 +1,7 @@
+- Competencia entre bancos? hay una estacionalidad de las campañas de marketing? cuando es mas probable que se vaya gente a otro banco?
+
+- Analizar scores en kaggle:
+	* al ser 5%, la inestabilidad es mucha. Puede pegarle bien al 5%. 
+	Se puede ver algo mas de las curvas de envios? Yo creo que: debe haber una logica en la cantidad de desciende cuando se hacen mas envios.
+	Si cada +1000 envios baja -2mill, entonces está bueno el modelo.
+		
