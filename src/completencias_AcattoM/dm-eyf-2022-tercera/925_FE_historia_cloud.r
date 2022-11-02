@@ -24,10 +24,10 @@ PARAM$experimento <- "FE9250"
 PARAM$exp_input  <- "DR9141_2"
 
 PARAM$lag1  <- TRUE
-PARAM$lag2  <- FALSE
+PARAM$lag2  <- TRUE
 PARAM$Tendencias  <- TRUE
 PARAM$RandomForest  <- FALSE          #No se puede poner en TRUE para la entrega oficial de la Tercera Competencia
-PARAM$CanaritosAsesinos  <- FALSE
+PARAM$CanaritosAsesinos  <- TRUE
 # FIN Parametros del script
 
 #------------------------------------------------------------------------------
@@ -37,6 +37,28 @@ options(error = function() {
   options(error = NULL); 
   stop("exiting after script error") 
 })
+
+#'------------------------------------------------------------------------------
+# 2. Funciones Auxiliares ----
+#'------------------------------------------------------------------------------
+
+crearCheckpoint <- function(path,filename) 
+{
+  require(rstudioapi)
+  # file.copy(rstudioapi::getSourceEditorContext()$path,
+  #           to = file.path(path,
+  #                          paste0(filename, "_antes.R")))
+  documentSave()
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, ".R")))
+}
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+dir_salidas="~/buckets/b1/exp/TP/"
+dir.create( dir_salidas )
+
 
 #------------------------------------------------------------------------------
 #se calculan para los 6 meses previos el minimo, maximo y tendencia calculada con cuadrados minimos
@@ -246,8 +268,8 @@ CanaritosAsesinos  <- function( canaritos_ratio=0.2 )
   campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01", "foto_mes" ) )
 
   azar  <- runif( nrow(dataset) )
-  dataset[ , entrenamiento := foto_mes>= 202101 &  foto_mes<= 202103  & ( clase01==1 | azar < 0.10 ) ]
-
+ # dataset[ , entrenamiento := foto_mes>= 202012 &  foto_mes<= 202103  & ( clase01==1 | azar < 0.10 ) ]
+  dataset[ , entrenamiento := foto_mes>= 202007 &  foto_mes<= 202103  & ( clase01==1 | azar < 0.10 ) ]
   dtrain  <- lgb.Dataset( data=    data.matrix(  dataset[ entrenamiento==TRUE, campos_buenos, with=FALSE]),
                           label=   dataset[ entrenamiento==TRUE, clase01],
                           weight=  dataset[ entrenamiento==TRUE, ifelse(clase_ternaria=="BAJA+2", 1.0000001, 1.0)],
@@ -277,8 +299,8 @@ CanaritosAsesinos  <- function( canaritos_ratio=0.2 )
                  force_row_wise= TRUE,    #para que los alumnos no se atemoricen con tantos warning
                  learning_rate= 0.065, 
                  feature_fraction= 1.0,   #lo seteo en 1 para que las primeras variables del dataset no se vean opacadas
-                 min_data_in_leaf= 260,
-                 num_leaves= 60,
+                 min_data_in_leaf= 260*3,
+                 num_leaves= 60*3,
                  early_stopping_rounds= 200 )
 
   modelo  <- lgb.train( data= dtrain,
@@ -372,13 +394,13 @@ if( PARAM$Tendencias )
 {
   TendenciaYmuchomas( dataset, 
                       cols= cols_lagueables,
-                      ventana=   6,      # 6 meses de historia
+                      ventana=   3,      # 6 meses de historia
                       tendencia= TRUE,
-                      minimo=    FALSE,
-                      maximo=    FALSE,
+                      minimo=    TRUE,
+                      maximo=    TRUE,
                       promedio=  TRUE,
-                      ratioavg=  FALSE,
-                      ratiomax=  FALSE  )
+                      ratioavg=  TRUE,
+                      ratiomax=  TRUE  )
 }
 
 #------------------------------------------------------------------------------
@@ -417,3 +439,11 @@ fwrite( dt,
         "dataset_sample.csv.gz",
         logical01= TRUE,
         sep= "," )
+
+
+#'-------------------------------
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+archivo_nombre=paste0(timestamp,"_FE_historia_cloud")
+
+#checkpoint
+crearCheckpoint(dir_salidas,archivo_nombre)

@@ -82,16 +82,41 @@ dataset_fe  <- fread( dataset_input )
 crearCheckpoint <- function(path,filename) 
 {
   require(rstudioapi)
-  file.copy(rstudioapi::getSourceEditorContext()$path,
-            to = file.path(path,
-                           paste0(filename, "_antes.R")))
+  # file.copy(rstudioapi::getSourceEditorContext()$path,
+  #           to = file.path(path,
+  #                          paste0(filename, "_antes.R")))
   documentSave()
   file.copy(rstudioapi::getSourceEditorContext()$path,
             to = file.path(path,
                            paste0(filename, ".R")))
 }
 
+#------------------------------------------------------------------------------
+#El cero se transforma en cero
+#los positivos se rankean por su lado
+#los negativos se rankean por su lado
 
+drift_rank_cero_fijo  <- function( campos_drift )
+{
+  for( campo in campos_drift )
+  {
+    cat( campo, " " )
+    dataset_fe[ get(campo) ==0, paste0(campo,"_rank") := 0 ]
+    dataset_fe[ get(campo) > 0, paste0(campo,"_rank") :=   frank(  get(campo), ties.method="random")  / .N, by= foto_mes ]
+    dataset_fe[ get(campo) < 0, paste0(campo,"_rank") :=  -frank( -get(campo), ties.method="random")  / .N, by= foto_mes ]
+    dataset_fe[ , (campo) := NULL ]
+  }
+}
+
+drift_rank_simple  <- function( campos_drift )
+{
+  for( campo in campos_drift )
+  {
+    cat( campo, " " )
+    dataset_fe[ , paste0(campo,"_rank") :=  (frank( get(campo), ties.method="random") - 1) / ( .N -1 ), by= foto_mes]
+    dataset_fe[ , (campo) := NULL ]
+  }
+}
 
 #'------------------------------------------------------------------------------
 # 3. FEATURE ENGINEERING ----
@@ -418,6 +443,16 @@ dataset_fe[, n_tarjetas_cierre_tot := ifelse((n_visa_status_bin==1 & n_master_st
 dataset_fe[, n_tarjetas_cierre_tot := ifelse(is.na(n_tarjetas_cierre_tot),0,n_tarjetas_cierre_tot)]
 
 
+#Estacionalidades
+for (i in c(1,2,3,4,5,6,7,8,9,10,11,12)) {
+  dataset_fe[, paste0("n_mes_0",i) := 0L ]
+  dataset_fe[foto_mes%%100 == i, paste0("n_es_mes_",i) := 1L ]
+}
+
+#Pandemia
+dataset_fe[, pandemia := 0L ]
+dataset_fe[foto_mes >= 202003 & foto_mes<=202012, n_es_pandemia := 1L ]
+
 
 
 ## Crea nuevos features part2  ----
@@ -427,32 +462,21 @@ dataset_fe[, n_tarjetas_cierre_tot := ifelse(is.na(n_tarjetas_cierre_tot),0,n_ta
 
 ###frank ----
 
+
 #columnas_frank <- c("mcuentas_saldo", "mprestamos_personales","mcomisiones","mtarjeta_visa_consumo")
 # columnas_frank <- c("mcuentas_saldo", "mprestamos_personales","mcomisiones","mtarjeta_visa_consumo","mrentabilidad","mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen","mcuenta_corriente_adicional","mcuenta_corriente","mcaja_ahorro","mcaja_ahorro_adicional","mcaja_ahorro_dolares","mautoservicio","mtarjeta_master_consumo","mprestamos_prendarios","mprestamos_hipotecarios","mplazo_fijo_dolares","mplazo_fijo_pesos","minversion1_pesos","minversion1_dolares","minversion2","mpayroll","mpayroll2","mcuenta_debitos_automaticos","mttarjeta_visa_debitos_automaticos","mttarjeta_master_debitos_automaticos","mpagodeservicios","mpagomiscuentas","mcajeros_propios_descuentos","mtarjeta_visa_descuentos","mtarjeta_master_descuentos","mcomisiones_mantenimiento","mcomisiones_otras","mforex_buy","mforex_sell","mtransferencias_recibidas","mtransferencias_emitidas","mextraccion_autoservicio","mcheques_depositados","mcheques_emitidos","mcheques_depositados_rechazados","mcheques_emitidos_rechazados","matm","matm_other",
 #                     "Visa_mfinanciacion_limite","Visa_msaldototal","Visa_msaldopesos","Visa_msaldodolares","Visa_mconsumospesos","Visa_mconsumosdolares","Visa_mlimitecompra","Visa_madelantopesos","Visa_madelantodolares","Visa_mpagado","Visa_mpagospesos","Visa_mpagosdolares","Visa_mconsumototal","Visa_mpagominimo","Master_mfinanciacion_limite","Master_msaldototal","Master_msaldopesos","Master_msaldodolares","Master_mconsumospesos","Master_mconsumosdolares","Master_mlimitecompra","Master_madelantopesos","Master_madelantodolares","Master_mpagado","Master_mpagospesos","Master_mpagosdolares","Master_mconsumototal","Master_mpagominimo")
 # columnas_frank <- c(columnas_frank, col_aplicar_DF)
 # 
-# for (campo in columnas_frank)
-# {
-#   for (mes in meses_train_test)
-#   {
-#     nrows <- length(dataset_fe[ foto_mes == mes & get(campo) >=0,get(campo)])
-#     dataset_fe <- dataset_fe[ foto_mes == mes & get(campo) >=0, paste0("n_", campo,"_rnk_gz") := (frank(get(campo)) -1) / (nrows-1)]
-#     nrows <- length(dataset_fe[ foto_mes == mes & get(campo) <0,get(campo)])
-#     dataset_fe <- dataset_fe[ foto_mes == mes & get(campo) <0, paste0("n_", campo,"_rnk_lz") := (frank(-get(campo)) -1) / (nrows-1)]
-#     
-#     dataset_fe <- dataset_fe[ foto_mes == mes , paste0("n_", campo,"_rnk") :=  rowSums( cbind( get(paste0("n_", campo,"_rnk_gz")),   - get(paste0("n_", campo,"_rnk_lz"))) , na.rm=TRUE )  ]
-#   }  
-#   #elimina columnas 
-#   dataset_fe[, c(paste0("n_", campo,"_rnk_gz"),paste0("n_", campo,"_rnk_lz")):=NULL]  # remove two columns
-#   
-#   #columna a quitar..
-#   columnas_a_quitar <- c(columnas_a_quitar,campo)
-# }
+
+columnas_frank <- c("Master_fultimo_cierre","Visa_fultimo_cierre")
+drift_rank_simple(columnas_frank)
+
 # 
 
 
-
+#combino MasterCard y Visa
+dataset_fe[ , n_vm_fultimo_cierre_rnk_gz       := pmax( Master_fultimo_cierre_rank, Visa_fultimo_cierre_rank, na.rm = TRUE) ]
 
 
 ## Clase Binaria  ----

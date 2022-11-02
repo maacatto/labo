@@ -34,9 +34,9 @@ dir.create( dir_salidas )
 crearCheckpoint <- function(path,filename) 
 {
   require(rstudioapi)
-  file.copy(rstudioapi::getSourceEditorContext()$path,
-            to = file.path(path,
-                           paste0(filename, "_antes.R")))
+  # file.copy(rstudioapi::getSourceEditorContext()$path,
+  #           to = file.path(path,
+  #                          paste0(filename, "_antes.R")))
   documentSave()
   file.copy(rstudioapi::getSourceEditorContext()$path,
             to = file.path(path,
@@ -55,12 +55,16 @@ options(error = function() {
 
 base_dir <- "~/buckets/b1/"
 
-dir_salidas="./exp/TP/"
+#----------------------------------------------------
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+dir_salidas="~/buckets/b1/exp/TP/"
 dir.create( dir_salidas )
 
 #creo la carpeta donde va el experimento
 dir.create( paste0( base_dir, "exp/", PARAM$experimento, "/"), showWarnings = FALSE )
 setwd(paste0( base_dir, "exp/", PARAM$experimento, "/"))   #Establezco el Working Directory DEL EXPERIMENTO
+
+
 
 #leo la salida de la optimizaciob bayesiana
 arch_log  <- paste0( base_dir, "exp/", PARAM$exp_input, "/BO_log.txt" )
@@ -145,15 +149,14 @@ for( i in  1:PARAM$modelos )
             file= arch_modelo )
 
   #creo y grabo la importancia de variables
-  tb_importancia  <- as.data.table( lgb.importance( modelo_final ) )
-  fwrite( tb_importancia,
-          file= paste0( "impo_", 
-                        sprintf( "%02d", i ),
-                        "_",
-                        sprintf( "%03d", iteracion_bayesiana ),
-                        ".txt" ),
-          sep= "\t" )
-
+  # tb_importancia  <- as.data.table( lgb.importance( modelo_final ) )
+  # fwrite( tb_importancia,
+  #         file= paste0( dir_salidas,timestamp,"_impo_",
+  #                       sprintf( "%02d", i ),
+  #                       "_",
+  #                       sprintf( "%03d", iteracion_bayesiana ),
+  #                       ".txt" ),
+  #         sep= "\t" )
 
   #genero la prediccion, Scoring
   prediccion  <- predict( modelo_final,
@@ -163,7 +166,7 @@ for( i in  1:PARAM$modelos )
   tb_prediccion[ , prob := prediccion ]
 
 
-  nom_pred  <- paste0( "pred_",
+  nom_pred  <- paste0( dir_salidas,timestamp,"_pred_",
                        sprintf( "%02d", i ),
                        "_",
                        sprintf( "%03d", iteracion_bayesiana),
@@ -175,8 +178,8 @@ for( i in  1:PARAM$modelos )
 
 
   #genero los archivos para Kaggle
-  cortes  <- seq( from=  7000,
-                  to=   11000,
+  cortes  <- seq( from=  9000,
+                  to=   15000,
                   by=     500 )
 
 
@@ -187,7 +190,7 @@ for( i in  1:PARAM$modelos )
     tb_prediccion[  , Predicted := 0L ]
     tb_prediccion[ 1:corte, Predicted := 1L ]
 
-    nom_submit  <- paste0( PARAM$experimento, 
+    nom_submit  <- paste0( dir_salidas,timestamp, 
                            "_",
                            sprintf( "%02d", i ),
                            "_",
@@ -202,7 +205,6 @@ for( i in  1:PARAM$modelos )
 
   }
 
-
   #borro y limpio la memoria para la vuelta siguiente del for
   rm( tb_prediccion )
   rm( tb_importancia )
@@ -212,13 +214,16 @@ for( i in  1:PARAM$modelos )
   gc()
 }
 
+#----------------------------------------
 
 
-
-#----------------------------------------------------
-timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 archivo_nombre=paste0(timestamp,"_lightgbm_under")
 
 #checkpoint
 crearCheckpoint(dir_salidas,archivo_nombre)
+
+#Copio BO_log.txt a carpeta salidas
+fwrite( tb_log,
+        file= paste0(dir_salidas,timestamp,"_BO_log.txt"),
+        sep= "\t" )
 

@@ -19,9 +19,29 @@ PARAM$experimento  <- "DR9141"
 PARAM$exp_input  <- "CA9060"
 
 #valores posibles  "ninguno" "rank_simple" , "rank_cero_fijo" , "deflacion"
-PARAM$metodo  <- "deflacion"
+PARAM$metodo  <- "rank_cero_fijo"
 # FIN Parametros del script
 
+#'------------------------------------------------------------------------------
+# 2. Funciones Auxiliares ----
+#'------------------------------------------------------------------------------
+
+crearCheckpoint <- function(path,filename) 
+{
+  require(rstudioapi)
+  # file.copy(rstudioapi::getSourceEditorContext()$path,
+  #           to = file.path(path,
+  #                          paste0(filename, "_antes.R")))
+  documentSave()
+  file.copy(rstudioapi::getSourceEditorContext()$path,
+            to = file.path(path,
+                           paste0(filename, ".R")))
+}
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+dir_salidas="~/buckets/b1/exp/TP/"
+dir.create( dir_salidas )
 
 #------------------------------------------------------------------------------
 #Esta es la parte que los alumnos deben desplegar todo su ingenio
@@ -187,6 +207,19 @@ drift_rank_cero_fijo  <- function( campos_drift )
     dataset[ , (campo) := NULL ]
   }
 }
+
+drift_rank_cero_fijo_campo  <- function( campos_drift )
+{
+  for( campo in campos_drift )
+  {
+    cat( campo, " " )
+    dataset[ get(campo) ==0, paste0(campo,"_rank") := 0 ]
+    dataset[ get(campo) > 0, paste0(campo,"_rank") :=   frank(  get(campo), ties.method="random")  / .N, by= foto_mes ]
+    dataset[ get(campo) < 0, paste0(campo,"_rank") :=  -frank( -get(campo), ties.method="random")  / .N, by= foto_mes ]
+    dataset[ , (campo) := get(paste0(campo,"_rank")) ]
+    dataset[ , paste0(campo,"_rank") := NULL ]
+  }
+}
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #Aqui comienza el programa
@@ -221,7 +254,8 @@ PARAM$metodo,
   "ninguno"        = cat( "No hay correccion del data drifting" ),
   "rank_simple"    = drift_rank_simple( campos_monetarios ),
   "rank_cero_fijo" = drift_rank_cero_fijo( campos_monetarios ),
-  "deflacion"      = drift_deflacion( campos_monetarios ) 
+  "deflacion"      = drift_deflacion( campos_monetarios ) ,
+  "rank_cero_fijo_campo" = drift_rank_cero_fijo_campo( campos_monetarios )
 )
 
 
@@ -229,3 +263,11 @@ PARAM$metodo,
 fwrite( dataset,
         file="dataset.csv.gz",
         sep= "," )
+
+
+#'-------------------------------
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+archivo_nombre=paste0(timestamp,"_corregir_drifting")
+
+#checkpoint
+crearCheckpoint(dir_salidas,archivo_nombre)

@@ -26,7 +26,7 @@ PARAM$experimento <- "HT9420"
 PARAM$exp_input  <- "TS9320"
 # FIN Parametros del script
 
-PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
+PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463) #, 637597 )
 
 #------------------------------------------------------------------------------
 options(error = function() { 
@@ -82,7 +82,7 @@ hs <- makeParamSet(
 
 
 #si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-kBO_iteraciones  <- 60  #iteraciones de la Optimizacion Bayesiana
+kBO_iteraciones  <- 50  #iteraciones de la Optimizacion Bayesiana
 
 
 dir_salidas="~/buckets/b1/exp/TP/"
@@ -96,9 +96,9 @@ dir.create( dir_salidas )
 crearCheckpoint <- function(path,filename) 
 {
   require(rstudioapi)
-  file.copy(rstudioapi::getSourceEditorContext()$path,
-            to = file.path(path,
-                           paste0(filename, "_antes.R")))
+  # file.copy(rstudioapi::getSourceEditorContext()$path,
+  #           to = file.path(path,
+  #                          paste0(filename, "_antes.R")))
   documentSave()
   file.copy(rstudioapi::getSourceEditorContext()$path,
             to = file.path(path,
@@ -235,8 +235,8 @@ EstimarGanancia_lightgbm  <- function( x )
   xx  <- c( ds, copy(param_completo) )
 
   #quito los parametros reales
-  xx$min_data_in_leaf <- NULL
-  xx$num_leaves <- NULL
+  # xx$min_data_in_leaf <- NULL
+  # xx$num_leaves <- NULL
 
   xx$early_stopping_rounds  <- NULL
   xx$num_iterations  <- modelo_train$best_iter
