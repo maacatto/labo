@@ -393,7 +393,7 @@ if( PARAM$Tendencias )
 {
   TendenciaYmuchomas( dataset, 
                       cols= cols_lagueables,
-                      ventana=   3,      # 6 meses de historia
+                      ventana=   6,      # 6 meses de historia
                       tendencia= TRUE,
                       minimo=    TRUE,
                       maximo=    TRUE,
