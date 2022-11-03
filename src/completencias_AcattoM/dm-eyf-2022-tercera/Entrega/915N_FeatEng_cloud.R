@@ -445,7 +445,7 @@ dataset_fe[, n_tarjetas_cierre_tot := ifelse(is.na(n_tarjetas_cierre_tot),0,n_ta
 
 #Estacionalidades
 for (i in c(1,2,3,4,5,6,7,8,9,10,11,12)) {
-  dataset_fe[, paste0("n_mes_0",i) := 0L ]
+  dataset_fe[, paste0("n_es_mes_",i) := 0L ]
   dataset_fe[foto_mes%%100 == i, paste0("n_es_mes_",i) := 1L ]
 }
 
