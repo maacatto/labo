@@ -395,11 +395,11 @@ if( PARAM$Tendencias )
                       cols= cols_lagueables,
                       ventana=   6,      # 6 meses de historia
                       tendencia= TRUE,
-                      minimo=    TRUE,
-                      maximo=    TRUE,
+                      minimo=    FALSE,
+                      maximo=    FALSE,
                       promedio=  TRUE,
-                      ratioavg=  TRUE,
-                      ratiomax=  TRUE  )
+                      ratioavg=  FALSE,
+                      ratiomax=  FALSE  )
 }
 
 #------------------------------------------------------------------------------
