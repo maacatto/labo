@@ -1,0 +1,15 @@
+Link Invitación Kaggle https://www.kaggle.com/t/e28e5f805fe2412898a2ae8756d8f30a
+
+Una vez dados de alta, este es el link usual para ingresar a la ULTIMA Competencia https://www.kaggle.com/competitions/dm-eyf-2022-ultima/
+
+Dataset para la ULTIMA Competencia https://storage.googleapis.com/dmeyf2022/competenciaFINAL_2022.csv.gz
+
+Public : 1 %
+Private : 99%
+
+
+
+- Vale todo, ahora puede y debe hacer ensembles
+- Se pueden crear cualquier tipo de features en el dataset, especialmente los provenientes de modelos.
+
+- La REPLICABILIDAD de todo su proceso es fundamental.
