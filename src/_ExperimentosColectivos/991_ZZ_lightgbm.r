@@ -23,7 +23,7 @@ ksemilla  <- 807299
 
 
 PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
-prob_corte = 10500
+corte = 10500
 
 dir_salidas="~/buckets/b1/exp/EC/"
 dir.create( dir_salidas )
@@ -176,9 +176,16 @@ for( i in  1:PARAM$modelos )
   
     
     #GANANCIA
-    ganancia_test  <- tb_prediccion[ prob >= prob_corte, 
-                           sum( ifelse(clase_ternaria=="BAJA+2", 78000, -2000 ) )]
+    setorder( tb_prediccion, -prob )
     
+    tb_prediccion[  , Predicted := 0L ]
+    tb_prediccion[ 1:corte, Predicted := 1L ]
+    
+    ganancia_test  <- tb_prediccion[ Predicted == 1L, 
+                                     sum( ifelse(clase_ternaria=="BAJA+2", 78000, -2000 ) )]
+    
+    
+      
     vector_ganancia <- c(vector_ganancia, ganancia_test)
     
   } 
