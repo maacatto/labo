@@ -19,7 +19,7 @@ PARAM$experimento  <- "DR9141"
 PARAM$exp_input  <- "CA9060"
 
 #valores posibles  "ninguno" "rank_simple" , "rank_cero_fijo" , "deflacion"
-PARAM$metodo  <- "rank_cero_fijo"
+PARAM$metodo  <- "deflacion"
 # FIN Parametros del script
 
 #'------------------------------------------------------------------------------
