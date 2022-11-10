@@ -19,16 +19,12 @@ require("mlrMBO")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "HT9410"
+PARAM$experimento <- "HT9410_E2"
 
-PARAM$exp_input  <- "TS9310"
+PARAM$exp_input  <- "TS9310_E2"
 # FIN Parametros del script
 
-<<<<<<< HEAD
-PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
-=======
-PARAM$semillas_azar  <- c( 807299, 962041)#, 705689, 909463, 637597 )
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
+PARAM$semillas_azar  <- c( 807299, 962041, 705689)#, 909463, 637597 )
 
 #------------------------------------------------------------------------------
 options(error = function() { 
@@ -76,11 +72,7 @@ param_lgb_basicos  <- list(
 
 #Aqui se cargan los hiperparametros que se optimizan en la Bayesian Optimization
 hs <- makeParamSet( 
-<<<<<<< HEAD
-         makeNumericParam("learning_rate",    lower=    0.005, upper=    0.3),
-=======
          makeNumericParam("learning_rate",    lower=    0.01, upper=    0.3),
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
          makeNumericParam("feature_fraction", lower=    0.2  , upper=    0.8),
          makeIntegerParam("min_data_in_leaf", lower=    0L   , upper=  8000L),
          makeIntegerParam("num_leaves",       lower=   16L   , upper=  2048L)
@@ -90,18 +82,14 @@ hs <- makeParamSet(
 #si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
 kBO_iteraciones  <- 50  #iteraciones de la Optimizacion Bayesiana
 
-dir_salidas="~/buckets/b1/exp/EC/"
+dir_salidas="~/buckets/b1/exp/EC_E2/"
 dir.create( dir_salidas )
 
 
 #'------------------------------------------------------------------------------
 # 2. Funciones Auxiliares ----
 #'------------------------------------------------------------------------------
-<<<<<<< HEAD
-
-=======
 scriptName <- rstudioapi::getSourceEditorContext()$path
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
 crearCheckpoint <- function(path,filename) 
 {
   require(rstudioapi)
@@ -109,11 +97,7 @@ crearCheckpoint <- function(path,filename)
   #           to = file.path(path,
   #                          paste0(filename, "_antes.R")))
   documentSave()
-<<<<<<< HEAD
-  file.copy(rstudioapi::getSourceEditorContext()$path,
-=======
   file.copy(scriptName,
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
             to = file.path(path,
                            paste0(filename, ".R")))
 }

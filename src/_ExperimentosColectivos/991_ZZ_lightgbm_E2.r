@@ -14,14 +14,10 @@ require("lightgbm")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento  <- "ZZ9410"
-PARAM$exp_input  <- "HT9410"
+PARAM$experimento  <- "ZZ9410_E2"
+PARAM$exp_input  <- "HT9410_E2"
 
-<<<<<<< HEAD
-PARAM$modelos  <- 1
-=======
-PARAM$modelos  <- 3
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
+PARAM$modelos  <- 2
 # FIN Parametros del script
 ksemilla  <- 807299
 
@@ -29,18 +25,14 @@ ksemilla  <- 807299
 PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
 corte = 10500
 
-dir_salidas="~/buckets/b1/exp/EC/"
+dir_salidas="~/buckets/b1/exp/EC_E2/"
 dir.create( dir_salidas )
 
 
 #'------------------------------------------------------------------------------
 # 2. Funciones Auxiliares ----
 #'------------------------------------------------------------------------------
-<<<<<<< HEAD
-
-=======
 scriptName <- rstudioapi::getSourceEditorContext()$path
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
 crearCheckpoint <- function(path,filename) 
 {
   require(rstudioapi)
@@ -48,11 +40,7 @@ crearCheckpoint <- function(path,filename)
   #           to = file.path(path,
   #                          paste0(filename, "_antes.R")))
   documentSave()
-<<<<<<< HEAD
-  file.copy(rstudioapi::getSourceEditorContext()$path,
-=======
   file.copy(scriptName,
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
             to = file.path(path,
                            paste0(filename, ".R")))
 }
@@ -123,45 +111,6 @@ campos_buenos  <- setdiff( colnames(dataset), c( "clase_ternaria", "clase01") )
 #genero un modelo para cada uno de las modelos_qty MEJORES iteraciones de la Bayesian Optimization
 for( i in  1:PARAM$modelos )
 {
-<<<<<<< HEAD
-  parametros  <- as.list( copy( tb_log[ i ] ) )
-  iteracion_bayesiana  <- parametros$iteracion_bayesiana
-  
-  arch_modelo  <- paste0( "modelo_" ,
-                          sprintf( "%02d", i ),
-                          "_",
-                          sprintf( "%03d", iteracion_bayesiana ),
-                          ".model" )
-  
-  
-  #creo CADA VEZ el dataset de lightgbm
-  dtrain  <- lgb.Dataset( data=    data.matrix( dataset[ , campos_buenos, with=FALSE] ),
-                          label=   dataset[ , clase01],
-                          weight=  dataset[ , ifelse( clase_ternaria %in% c("BAJA+2"), 1.0000001, 1.0)],
-                          free_raw_data= FALSE
-  )
-  
-  ganancia  <- parametros$ganancia
-  
-  #elimino los parametros que no son de lightgbm
-  parametros$experimento  <- NULL
-  parametros$cols         <- NULL
-  parametros$rows         <- NULL
-  parametros$fecha        <- NULL
-  parametros$prob_corte   <- NULL
-  parametros$estimulos    <- NULL
-  parametros$ganancia     <- NULL
-  parametros$iteracion_bayesiana  <- NULL
-  
-  #Utilizo la semilla definida en este script
-  #parametros$seed  <- ksemilla
-  
-  vector_ganancia <- c()
-  #####################################
-  for (seed in PARAM$semillas_azar) {
-    #genero el modelo entrenando en los datos finales
-    set.seed( seed )
-=======
   vector_ganancia <- c()
   #####################################
   for (seed in PARAM$semillas_azar) {
@@ -179,7 +128,7 @@ for( i in  1:PARAM$modelos )
     #creo CADA VEZ el dataset de lightgbm
     dtrain  <- lgb.Dataset( data=    data.matrix( dataset[ , campos_buenos, with=FALSE] ),
                             label=   dataset[ , clase01],
-                              weight=  dataset[ , ifelse( clase_ternaria %in% c("BAJA+2"), 1.0000001, 1.0)],
+                            weight=  dataset[ , ifelse( clase_ternaria %in% c("BAJA+2"), 1.0000001, 1.0)],
                             free_raw_data= FALSE
     )
     
@@ -201,22 +150,14 @@ for( i in  1:PARAM$modelos )
     set.seed( seed )
     #AGREGADO
     parametros$seed <- seed
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
     modelo_final  <- lightgbm( data= dtrain,
                                param=  parametros,
                                verbose= -100 )
     
-<<<<<<< HEAD
-    #grabo el modelo, achivo .model
-    lgb.save( modelo_final,
-              file= arch_modelo )
-    
-=======
     # #grabo el modelo, achivo .model
     # lgb.save( modelo_final,
     #           file= arch_modelo )
     # 
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
     #creo y grabo la importancia de variables
     tb_importancia  <- as.data.table( lgb.importance( modelo_final ) )
     fwrite( tb_importancia,
@@ -232,28 +173,12 @@ for( i in  1:PARAM$modelos )
     prediccion  <- predict( modelo_final,
                             data.matrix( dfuture[ , campos_buenos, with=FALSE ] ) )
     
-<<<<<<< HEAD
-    tb_prediccion  <- dfuture[  , list( numero_de_cliente, foto_mes ) ]
-=======
     tb_prediccion  <- dfuture[  , list( numero_de_cliente, foto_mes,clase_ternaria ) ]
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
     tb_prediccion[ , prob := prediccion ]
     
     
     #GANANCIA
     setorder( tb_prediccion, -prob )
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    
-    tb_prediccion[  , Predicted := 0L ]
-    tb_prediccion[ 1:corte, Predicted := 1L ]
-    
-    ganancia_test  <- tb_prediccion[ Predicted == 1L, 
-                                     sum( ifelse(clase_ternaria=="BAJA+2", 78000, -2000 ) )]
-=======
->>>>>>> 982b1f94b563a90fd5174cac92a3cc153cc92134
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
     
     tb_prediccion[  , Predicted := 0L ]
     tb_prediccion[ 1:corte, Predicted := 1L ]
@@ -261,13 +186,6 @@ for( i in  1:PARAM$modelos )
     ganancia_test  <- tb_prediccion[ Predicted == 1L, 
                                      sum( ifelse(clase_ternaria=="BAJA+2", 78000, -2000 ) )]
     
-    
-<<<<<<< HEAD
-    
-    vector_ganancia <- c(vector_ganancia, ganancia_test)
-    
-=======
-      
     vector_ganancia <- c(vector_ganancia, ganancia_test)
     
     #borro y limpio la memoria para la vuelta siguiente del for
@@ -277,7 +195,6 @@ for( i in  1:PARAM$modelos )
     rm( parametros )
     rm( dtrain )
     gc()
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
   } 
   
   ganancia_test_promedio <- mean(vector_ganancia)
@@ -290,36 +207,18 @@ for( i in  1:PARAM$modelos )
                        ".csv"  )
   
   #Grabo ganancia
-<<<<<<< HEAD
-  fwrite( vector_ganancia,
-=======
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
   fwrite( list(vector_ganancia),
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
           file= paste0(dir_salidas,timestamp,nom_pred),
           sep= "\t" )
   
   
   
-<<<<<<< HEAD
-  #borro y limpio la memoria para la vuelta siguiente del for
-  rm( tb_prediccion )
-  rm( tb_importancia )
-  rm( modelo_final)
-  rm( parametros )
-  rm( dtrain )
-  gc()
-}
-#----------------------------------------
-
-
-=======
   
 }
 #----------------------------------------
 
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
->>>>>>> d0a3aecb7a2b962a282a1cd9ec0cf6e111755e86
 archivo_nombre=paste0(timestamp,"_lightgbm")
 
 #checkpoint
