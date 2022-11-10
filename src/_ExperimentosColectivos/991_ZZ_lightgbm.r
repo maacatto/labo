@@ -179,6 +179,15 @@ for( i in  1:PARAM$modelos )
     
     #GANANCIA
     setorder( tb_prediccion, -prob )
+<<<<<<< HEAD
+    
+    tb_prediccion[  , Predicted := 0L ]
+    tb_prediccion[ 1:corte, Predicted := 1L ]
+    
+    ganancia_test  <- tb_prediccion[ Predicted == 1L, 
+                                     sum( ifelse(clase_ternaria=="BAJA+2", 78000, -2000 ) )]
+=======
+>>>>>>> 982b1f94b563a90fd5174cac92a3cc153cc92134
     
     tb_prediccion[  , Predicted := 0L ]
     tb_prediccion[ 1:corte, Predicted := 1L ]
@@ -186,6 +195,8 @@ for( i in  1:PARAM$modelos )
     ganancia_test  <- tb_prediccion[ Predicted == 1L, 
                                      sum( ifelse(clase_ternaria=="BAJA+2", 78000, -2000 ) )]
     
+    
+      
     vector_ganancia <- c(vector_ganancia, ganancia_test)
     
     #borro y limpio la memoria para la vuelta siguiente del for

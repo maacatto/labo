@@ -98,7 +98,7 @@ plot( hclust.rf )
 #genero 7 clusters
 h <- 20
 distintos <- 0
-n_clus <- 3
+n_clus <- 7
 
 #while(  h>0  &  !( distintos >=6 & distintos <=7 ) )
 while(  h>0  &  !( distintos >=(n_clus-1) & distintos <=n_clus ) )
