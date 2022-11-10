@@ -19,13 +19,13 @@ require("mlrMBO")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "HT9410_E1"
+PARAM$experimento <- "HT9410_E4"
 
-PARAM$exp_input  <- "TS9310_E1"
+PARAM$exp_input  <- "TS9310_E4"
 # FIN Parametros del script
 
-# PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
-PARAM$semillas_azar  <- c(  909463, 637597  )
+PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
+#PARAM$semillas_azar  <- c(  909463, 637597  )
 
 #------------------------------------------------------------------------------
 options(error = function() { 
@@ -83,7 +83,7 @@ hs <- makeParamSet(
 #si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
 kBO_iteraciones  <- 50  #iteraciones de la Optimizacion Bayesiana
 
-dir_salidas="~/buckets/b1/exp/EC_E1/"
+dir_salidas="~/buckets/b1/exp/EC_E4/"
 dir.create( dir_salidas )
 
 

@@ -24,8 +24,8 @@ PARAM$experimento <- "HT9410_E3"
 PARAM$exp_input  <- "TS9310_E3"
 # FIN Parametros del script
 
-# PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
-PARAM$semillas_azar  <- c(  909463, 637597  )
+PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
+#PARAM$semillas_azar  <- c(  909463, 637597  )
 
 #------------------------------------------------------------------------------
 options(error = function() { 
