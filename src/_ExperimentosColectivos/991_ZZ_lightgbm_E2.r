@@ -14,10 +14,10 @@ require("lightgbm")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento  <- "ZZ9410"
-PARAM$exp_input  <- "HT9410"
+PARAM$experimento  <- "ZZ9410_E2"
+PARAM$exp_input  <- "HT9410_E2"
 
-PARAM$modelos  <- 3
+PARAM$modelos  <- 2
 # FIN Parametros del script
 ksemilla  <- 807299
 
@@ -25,7 +25,7 @@ ksemilla  <- 807299
 PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597 )
 corte = 10500
 
-dir_salidas="~/buckets/b1/exp/EC/"
+dir_salidas="~/buckets/b1/exp/EC_E2/"
 dir.create( dir_salidas )
 
 
@@ -128,7 +128,7 @@ for( i in  1:PARAM$modelos )
     #creo CADA VEZ el dataset de lightgbm
     dtrain  <- lgb.Dataset( data=    data.matrix( dataset[ , campos_buenos, with=FALSE] ),
                             label=   dataset[ , clase01],
-                              weight=  dataset[ , ifelse( clase_ternaria %in% c("BAJA+2"), 1.0000001, 1.0)],
+                            weight=  dataset[ , ifelse( clase_ternaria %in% c("BAJA+2"), 1.0000001, 1.0)],
                             free_raw_data= FALSE
     )
     
