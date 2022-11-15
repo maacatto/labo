@@ -1,0 +1,10 @@
+Objetivos
+- Aprender el arte del Ensemble Manual de Modelos
+- Aprender a hacer Stacking de Modelos
+- Dejar de depender del Public Leaderboard
+
+
+
+IDEAS:
+ - Habilitar RandomForest features
+ - ver Shapley (sirve?)
