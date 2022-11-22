@@ -19,7 +19,7 @@ PARAM  <- list()
 PARAM$experimento  <- "ZZ9420_V1"
 PARAM$exp_input  <- "HT9420"
 
-PARAM$modelos  <- 1
+PARAM$modelos  <- 4
 # FIN Parametros del script
 
 ksemilla  <- 102191
@@ -30,7 +30,7 @@ dir.create( paste0(dir_salidas,"impo/") )
 
 
 #WalkBalkward validation
-PARAM$semillas_azar  <- c( 807299, 962041)#, 705689, 909463, 637597, 503963, 518171, 273323, 505283, 908287)
+PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597)#, 503963, 518171, 273323)#, 505283, 908287)
 PARAM$walkbackwards$test <- c(201911)
 
 #Ensamble
@@ -304,7 +304,7 @@ for( i in  1:PARAM$modelos )
 
 #fue sumando las probabilidades, ahora hago el promedio
 probabilidad_ensemble  <- probabilidad_ensemble / (length(PARAM$semillas_azar)*PARAM$modelos) 
-rank_ensemble_final <- frank(-rank_ensemble, ties.method = "random") #RANK
+rank_ensemble_final <- frank(rank_ensemble, ties.method = "random") #RANK
 
 #asigngo el promedio y grabo
 tb_ensembles[  , prob_promedio := probabilidad_ensemble ]
@@ -348,7 +348,7 @@ cortes  <- seq( from=  6500,
 ###########################
 if (PARAM$use_rank_final) {
   # Generamos predicción individual
-  setorder(tb_prediccion, -rank)
+  setorder(tb_prediccion, rank)
 } else {
   # Generamos predicción individual
   setorder(tb_prediccion, -prob)
