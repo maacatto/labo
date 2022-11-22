@@ -51,6 +51,10 @@ crearCheckpoint <- function(path,filename)
                            paste0(filename, ".R")))
 }
 
+
+#Imprimir timestamp
+timestamp_msj <- function(mensaje) { cat("INFO",format(Sys.time(), "%m%d %H%M%S"),mensaje) }
+
 #------------------------------------------------------------------------------
 options(error = function() { 
   traceback(20); 
@@ -60,6 +64,8 @@ options(error = function() {
 #------------------------------------------------------------------------------
 
 Ganancia_WalkBackward <- function(dfuture, cortes = c(10500) ) {
+  timestamp_msj( "Calculando ganancia.." )
+  
   # vector_ganancia <- c()
   xx <- list()
   nom_pred  <- paste0( "_walkbackwards"   )
@@ -82,12 +88,12 @@ Ganancia_WalkBackward <- function(dfuture, cortes = c(10500) ) {
   
   tb_prediccion  <- dfuture[  , list( numero_de_cliente, foto_mes,clase_ternaria,ganancia ) ]
   tb_prediccion[ , prob := prediccion ]
-
+  
   #GANANCIA
   setorder( tb_prediccion, -prob )
-
+  
   tb_prediccion[ , x := .I ]
-    
+  
   for (corte in cortes) {
     xx[[paste0(corte)]]     <- tb_prediccion[ x <= corte,  sum( ganancia,    na.rm=TRUE ) ]
   }
@@ -96,7 +102,7 @@ Ganancia_WalkBackward <- function(dfuture, cortes = c(10500) ) {
   #Graba cortes y ganancia
   exp_log(xx, arch= paste0(dir_salidas,timestamp,nom_pred,"_cortes.csv") )
   
-#  return (xx)
+  #  return (xx)
 }
 #----------------------------------------
 #graba a un archivo los componentes de lista
@@ -229,6 +235,7 @@ for( i in  1:PARAM$modelos )
   
   
   for (seed in PARAM$semillas_azar) {
+    timestamp_msj( paste0("Entrenando modelo ",i,"_",iteracion_bayesiana," con semilla ",seed ))
     
     #Utilizo la semilla definida en este script
     parametros$seed  <- seed
@@ -257,6 +264,7 @@ for( i in  1:PARAM$modelos )
     #inicializo en CERO el vector de las probabilidades en dfuture
     #Aqui es donde voy acumulando, sumando, las probabilidades
     
+    timestamp( "Prediciendo.." )
     #genero la prediccion, Scoring
     prediccion  <- predict( modelo_final,
                             data.matrix( dfuture[ , campos_buenos, with=FALSE ] ) )
@@ -290,7 +298,8 @@ for( i in  1:PARAM$modelos )
   #           file= arch_modelo )
   
   
-
+  
+  timestamp_msj( "Fin de interación" )
   
   #borro y limpio la memoria para la vuelta siguiente del for
   rm( tb_prediccion )
