@@ -21,9 +21,9 @@ require("mlrMBO")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "HT9420"
+PARAM$experimento <- "HT9420_sinCanarios"
 
-PARAM$exp_input  <- "TS9320"
+PARAM$exp_input  <- "TS9320_sinCanarios"
 # FIN Parametros del script
 
 PARAM$semillas_azar  <- c( 807299, 962041)#, #705689, 909463) #, 637597 )

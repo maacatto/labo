@@ -15,9 +15,9 @@ require("data.table")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "TS9320"
+PARAM$experimento <- "TS9320_sinCanarios"
 
-PARAM$exp_input  <- "FE9250"
+PARAM$exp_input  <- "FE9250_sinCanarios"
 
 PARAM$future       <- c( 202109 )
 
@@ -38,7 +38,7 @@ PARAM$train$semilla_sampling  <- 102191
 PARAM$train$semilla_under     <- 892237
 
 #WALKBACKWARDS VALIDATION
-PARAM$walkbackward$testing    <- c( 201903, 201907,201910,201911,201912,202001,202002,202003,202004,202005,202006,202007,202008,202009 )
+PARAM$walkbackward$testing    <- c(201903, 201910,201911,201912,202001,202002,202009 )
 
 # FIN Parametros del script
 

@@ -25,7 +25,7 @@ PARAM$metodo  <- "deflacion"
 #'------------------------------------------------------------------------------
 # 2. Funciones Auxiliares ----
 #'------------------------------------------------------------------------------
-
+scriptName <- rstudioapi::getSourceEditorContext()$path
 crearCheckpoint <- function(path,filename) 
 {
   require(rstudioapi)
@@ -33,14 +33,13 @@ crearCheckpoint <- function(path,filename)
   #           to = file.path(path,
   #                          paste0(filename, "_antes.R")))
   documentSave()
-  file.copy(rstudioapi::getSourceEditorContext()$path,
+  file.copy(scriptName,
             to = file.path(path,
                            paste0(filename, ".R")))
 }
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-dir_salidas="~/buckets/b1/exp/TP/"
+dir_salidas="~/buckets/b1/exp/TP_final/"
 dir.create( dir_salidas )
 
 #------------------------------------------------------------------------------
@@ -156,7 +155,8 @@ drift_deflacion  <- function( campos_monetarios )
                   202001, 202002, 202003, 202004, 202005, 202006,
                   202007, 202008, 202009, 202010, 202011, 202012,
                   202101, 202102, 202103, 202104, 202105, 202106,
-                  202107  )
+                  202107,
+                  202108, 202109)
 
   vIPC  <- c( 1.9903030878, 1.9174403544, 1.8296186587,
               1.7728862972, 1.7212488323, 1.6776304408,
@@ -168,7 +168,8 @@ drift_deflacion  <- function( campos_monetarios )
               1.0681100000, 1.0370000000, 1.0000000000,
               0.9680542110, 0.9344152616, 0.8882274350,
               0.8532444140, 0.8251880213, 0.8003763543,
-              0.7763107219  )
+              0.7763107219,
+              0.756048168258965, 0.730151251625364)
 
   tb_IPC  <- data.table( "foto_mes"= vfoto_mes,
                          "IPC" = vIPC )

@@ -45,8 +45,10 @@ meses_train <- c(201901, 201902, 201903, 201904, 201905, 201906,
                  201907, 201908, 201909, 201910, 201911, 201912,
                  202001, 202002, 202003, 202004, 202005, 202006,
                  202007, 202008, 202009, 202010, 202011, 202012,
-                 202101, 202102, 202103, 202104, 202105, 202106)
-mes_predecir <- c(202107)
+                 202101, 202102, 202103, 202104, 202105, 202106,
+                 202107,
+                 202108, 202109)
+mes_predecir <- c(202109)
 
 meses_train_test <- c(meses_train,mes_predecir)
 
@@ -56,7 +58,7 @@ meses_train_test <- c(meses_train,mes_predecir)
 #setwd("G:\\My Drive\\Facultad\\Maestria DM\\Expecializacion\\DMEyF\\Carpetas")  #Establezco el Working Directory
 setwd("~/buckets/b1/")   #Establezco el Working Directory
 
-dir_salidas="./exp/TP/"
+dir_salidas="./exp/TP_final/"
 dir.create( dir_salidas )
 
 #'------------------------------------------------------------------------------
@@ -78,7 +80,7 @@ dataset_fe  <- fread( dataset_input )
 #'------------------------------------------------------------------------------
 # 2. Funciones Auxiliares ----
 #'------------------------------------------------------------------------------
-
+scriptName <- rstudioapi::getSourceEditorContext()$path
 crearCheckpoint <- function(path,filename) 
 {
   require(rstudioapi)
@@ -86,7 +88,7 @@ crearCheckpoint <- function(path,filename)
   #           to = file.path(path,
   #                          paste0(filename, "_antes.R")))
   documentSave()
-  file.copy(rstudioapi::getSourceEditorContext()$path,
+  file.copy(scriptName,
             to = file.path(path,
                            paste0(filename, ".R")))
 }
