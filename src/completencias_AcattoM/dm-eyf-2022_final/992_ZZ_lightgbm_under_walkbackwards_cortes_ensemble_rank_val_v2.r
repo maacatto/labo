@@ -17,9 +17,9 @@ require("lightgbm")
 #Parametros del script
 PARAM  <- list()
 PARAM$experimento  <- "ZZ9420_V1"
-PARAM$exp_input  <- "HT9420"
+PARAM$exp_input  <- "HT9420/BestModel_tercera"
 
-PARAM$modelos  <- 2
+PARAM$modelos  <- 1
 # FIN Parametros del script
 
 ksemilla  <- 102191
@@ -30,7 +30,7 @@ dir.create( paste0(dir_salidas,"impo/") )
 
 
 #WalkBalkward validation
-PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597, 503963, 518171, 273323, 505283, 908287)
+PARAM$semillas_azar  <- c( 807299, 962041, 705689, 909463, 637597, 503963)#, 518171, 273323, 505283, 908287)
 PARAM$walkbackwards$test <- c(201911)
 
 #Ensamble
@@ -115,7 +115,15 @@ Ganancia_WalkBackward <- function(dfuture, cortes = c(10500) ) {
   #Graba cortes y ganancia
   exp_log(xx, arch= paste0(dir_salidas,timestamp,nom_pred,"_cortes.csv") )
   
-  return (tb_prediccion[ , rank])
+  #Orden original
+  setorder(tb_prediccion, numero_de_cliente)
+  
+  if (PARAM$use_rank_final) {
+    return (tb_prediccion[ , rank])
+  } else {
+    return (tb_prediccion[ , -prob])
+  }
+
 }
 #----------------------------------------
 #graba a un archivo los componentes de lista
@@ -189,6 +197,7 @@ dtest[  , ganancia :=  ifelse( clase_ternaria == "BAJA+2", 78000, -2000 ) ]
 #ENSEMBLE
 probabilidad_ensemble  <- rep( 0, nrow(dfuture) )
 rank_ensemble  <- rep( 0, nrow(dfuture) ) #RANK
+rank_ensemble_val  <- rep( 0, nrow(dtest) ) #RANK
 
 tb_ensembles  <-  copy( dfuture[ , list( numero_de_cliente ) ] )
 
@@ -303,7 +312,7 @@ for( i in  1:PARAM$modelos )
     cortes  <- seq( from=  4000,
                     to=   14000,
                     by=     250 )
-    probabilidad_ensemble_val <- probabilidad_ensemble_val + Ganancia_WalkBackward(dtest,cortes)
+    rank_ensemble_val <- rank_ensemble_val + Ganancia_WalkBackward(dtest,cortes)
     #-----------------------------------------
   }
   
@@ -323,6 +332,66 @@ for( i in  1:PARAM$modelos )
   rm( dtrain )
   gc()
 } #for modelos
+
+
+
+
+#----------------------------------------
+#WALK BACKWARD validation
+#----------------------------------------
+
+if (PARAM$use_rank_final) {
+  # Generamos predicción individual
+  rank_ensemble_val_final <- frank(rank_ensemble_val, ties.method = "random") #RANK
+} else {
+  # Generamos predicción individual
+  rank_ensemble_val_final <-  rank_ensemble_val / (length(PARAM$semillas_azar)*PARAM$modelos)
+}
+
+
+
+xx <- list()
+nom_pred  <- paste0( "_walkbackwards"   )
+xx$foto_mes <- PARAM$walkbackwards$test
+xx$seed <- paste0("bagging_",length(PARAM$semillas_azar))
+xx$modelo <- paste0("bagging_",i)
+xx$iteracion <- paste0("rank_",PARAM$use_rank_final)
+
+
+tb_prediccion  <- dtest[  , list( numero_de_cliente, foto_mes,clase_ternaria,ganancia ) ]
+
+
+#GANANCIA
+#setorder( tb_prediccion, -prob )
+if (PARAM$use_rank_final) {
+  tb_prediccion[ , rank := rank_ensemble_val_final] #RANK
+  
+  # Generamos predicción individual
+  setorder(tb_prediccion, rank)
+} else {
+  tb_prediccion[ , prob := rank_ensemble_val_final ]
+  
+  # Generamos predicción individual
+  setorder(tb_prediccion, -prob)
+}
+
+
+tb_prediccion[ , x := .I ]
+
+for (corte in cortes) {
+  xx[[paste0(corte)]]     <- tb_prediccion[ x <= corte,  sum( ganancia,    na.rm=TRUE ) ]
+}
+
+
+#Graba cortes y ganancia
+exp_log(xx, arch= paste0(dir_salidas,timestamp,nom_pred,"_cortes.csv") )
+
+#rm(tb_prediccion)
+#gc()
+#-----------------------------------------
+
+
+
 
 
 #fue sumando las probabilidades, ahora hago el promedio
